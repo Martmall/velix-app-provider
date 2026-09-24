@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -406,11 +407,21 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                               child: RichText(
                                 text: TextSpan(
                                   style: TextStyle(fontSize: 12, color: subtextColor),
-                                  children: const [
-                                    TextSpan(text: 'I agree to Velix '),
-                                    TextSpan(text: 'Terms of Service', style: TextStyle(color: Color(0xFFC84C00), fontWeight: FontWeight.bold)),
-                                    TextSpan(text: ' and '),
-                                    TextSpan(text: 'Privacy Policy', style: TextStyle(color: Color(0xFFC84C00), fontWeight: FontWeight.bold)),
+                                  children: [
+                                    const TextSpan(text: 'I agree to Velix '),
+                                    TextSpan(
+                                      text: 'Terms of Service',
+                                      style: const TextStyle(color: Color(0xFFC84C00), fontWeight: FontWeight.bold),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () => LegalTermsModal.showTermsOfService(context),
+                                    ),
+                                    const TextSpan(text: ' and '),
+                                    TextSpan(
+                                      text: 'Privacy Policy',
+                                      style: const TextStyle(color: Color(0xFFC84C00), fontWeight: FontWeight.bold),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () => LegalTermsModal.showPrivacyPolicy(context),
+                                    ),
                                   ],
                                 ),
                               ),

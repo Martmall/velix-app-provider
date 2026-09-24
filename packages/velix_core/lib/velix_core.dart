@@ -57,3 +57,4 @@ export 'services/biometric_auth_service.dart';
 export 'shared_components/modals/social_auth_modal.dart';
 export 'shared_components/modals/image_picker_modal.dart';
 export 'shared_components/modals/auth_gate_modal.dart';
+export 'shared_components/modals/legal_terms_modal.dart';
