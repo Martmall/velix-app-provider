@@ -36,6 +36,7 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
     setState(() => _isLoading = true);
     if (currentBooking != null) {
       await ref.read(bookingRepoProvider).updateBookingStatus(currentBooking.id, BookingStatus.active);
+      ref.invalidate(partnerBookingsProvider);
     }
     await Future.delayed(const Duration(milliseconds: 600));
     if (mounted) {

@@ -232,6 +232,8 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
         await ref.read(fleetRepoProvider).addVehicle(newCar);
       }
 
+      ref.invalidate(partnerFleetProvider);
+
       if (mounted) {
         setState(() => _isLoading = false);
         VelixToast.showSuccess(

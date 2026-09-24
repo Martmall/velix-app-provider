@@ -62,6 +62,15 @@ class _PartnerSignInScreenState extends ConsumerState<PartnerSignInScreen> {
           context.go(AppRoutes.partnerHome);
         } else if (mounted) {
           setState(() => _isLoading = false);
+          final errStr = ref.read(partnerAuthProvider).error;
+          final msg = (errStr != null && errStr.isNotEmpty)
+              ? errStr.replaceAll('Exception:', '').trim()
+              : 'Invalid partner email or password.';
+          VelixToast.showError(
+            context,
+            msg,
+            title: 'Sign In Failed',
+          );
         }
       } catch (e) {
         if (mounted) {

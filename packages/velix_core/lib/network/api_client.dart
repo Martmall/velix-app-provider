@@ -101,4 +101,39 @@ class ApiClient {
   Future<Response<T>> delete<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters}) {
     return dio.delete<T>(path, data: data, queryParameters: queryParameters);
   }
+
+  static String parseErrorMessage(dynamic error) {
+    if (error is DioException) {
+      if (error.response != null && error.response?.data != null) {
+        final data = error.response!.data;
+        if (data is Map) {
+          if (data['message'] != null) return data['message'].toString();
+          if (data['error'] != null) return data['error'].toString();
+          if (data['errors'] != null) return data['errors'].toString();
+        } else if (data is String && data.isNotEmpty) {
+          return data;
+        }
+      }
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return 'Connection timed out. Please check your internet connection.';
+        case DioExceptionType.connectionError:
+          return 'Unable to connect to Velix server. Please verify your network.';
+        case DioExceptionType.badResponse:
+          final status = error.response?.statusCode;
+          if (status == 401) return 'Authentication required or session expired. Please sign in.';
+          if (status == 403) return 'Access denied. You do not have permission for this action.';
+          if (status == 404) return 'Requested resource was not found.';
+          if (status == 422) return 'Invalid data submitted. Please check your input.';
+          if (status == 429) return 'Too many requests. Please try again in a moment.';
+          if (status != null && status >= 500) return 'Server error ($status). Please try again later.';
+          return 'Request failed with status $status.';
+        default:
+          return error.message ?? 'An unexpected network error occurred.';
+      }
+    }
+    return error?.toString() ?? 'An unexpected error occurred.';
+  }
 }

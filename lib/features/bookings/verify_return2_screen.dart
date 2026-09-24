@@ -23,6 +23,7 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
     setState(() => _isLoading = true);
     if (currentBooking != null) {
       await ref.read(bookingRepoProvider).updateBookingStatus(currentBooking.id, BookingStatus.completed);
+      ref.invalidate(partnerBookingsProvider);
     }
     await Future.delayed(const Duration(milliseconds: 600));
     if (mounted) {

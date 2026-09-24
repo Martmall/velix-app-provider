@@ -25,7 +25,7 @@ class AuthRemoteDataSource {
         }
       }
       return UserModel.fromJson(data['user'] ?? data);
-    } catch (_) {
+    } catch (e1) {
       try {
         final response = await _apiClient.post('/auth/login', data: {
           'email': email,
@@ -37,16 +37,7 @@ class AuthRemoteDataSource {
         }
         return UserModel.fromJson(data['user'] ?? data);
       } catch (err) {
-        final fallbackUser = UserModel(
-          id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-          fullName: email.split('@').first,
-          email: email,
-          phone: '+234 800 000 0000',
-          role: email.toLowerCase().contains('partner') ? UserRole.partner : UserRole.user,
-          isVerified: true,
-        );
-        await _storage.saveToken('token_${fallbackUser.id}');
-        return fallbackUser;
+        throw Exception(ApiClient.parseErrorMessage(err));
       }
     }
   }
@@ -83,7 +74,7 @@ class AuthRemoteDataSource {
         }
       }
       return UserModel.fromJson(data['user'] ?? data);
-    } catch (_) {
+    } catch (e1) {
       try {
         final response = await _apiClient.post('/auth/register', data: {
           'fullName': fullName,
@@ -98,16 +89,7 @@ class AuthRemoteDataSource {
         }
         return UserModel.fromJson(data['user'] ?? data);
       } catch (err) {
-        final fallbackUser = UserModel(
-          id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-          fullName: fullName,
-          email: email,
-          phone: phone,
-          role: role,
-          isVerified: false,
-        );
-        await _storage.saveToken('token_${fallbackUser.id}');
-        return fallbackUser;
+        throw Exception(ApiClient.parseErrorMessage(err));
       }
     }
   }
