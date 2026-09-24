@@ -164,19 +164,37 @@ class AuthRemoteDataSource {
 
   Future<bool> sendOtp({required String phone}) async {
     try {
-      final response = await _apiClient.post('/send-otp', data: {'phone': phone});
-      return response.data['success'] == true || response.statusCode == 200;
+      final response = await _apiClient.post('/request-login-otp', data: {'phone': phone, 'contact_number': phone});
+      final data = response.data['data'] ?? response.data;
+      return data['success'] == true || response.statusCode == 200;
     } catch (_) {
-      return true;
+      try {
+        final response = await _apiClient.post('/send-otp', data: {'phone': phone});
+        final data = response.data['data'] ?? response.data;
+        return data['success'] == true || response.statusCode == 200;
+      } catch (err) {
+        throw Exception(ApiClient.parseErrorMessage(err));
+      }
     }
   }
 
-  Future<bool> verifyOtp({required String code}) async {
+  Future<bool> verifyOtp({required String code, String? phone}) async {
     try {
-      final response = await _apiClient.post('/verify-otp', data: {'otp': code});
-      return response.data['success'] == true || response.statusCode == 200;
+      final response = await _apiClient.post('/verify-registration-otp', data: {
+        'otp': code,
+        'code': code,
+        if (phone != null) 'phone': phone,
+      });
+      final data = response.data['data'] ?? response.data;
+      return data['success'] == true || response.statusCode == 200;
     } catch (_) {
-      return true;
+      try {
+        final response = await _apiClient.post('/verify-otp', data: {'otp': code, 'code': code});
+        final data = response.data['data'] ?? response.data;
+        return data['success'] == true || response.statusCode == 200;
+      } catch (err) {
+        throw Exception(ApiClient.parseErrorMessage(err));
+      }
     }
   }
 

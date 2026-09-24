@@ -87,7 +87,7 @@ class RemoteAuthRepository implements IAuthRepository {
 
   @override
   Future<bool> verifyOtp({required String phone, required String code}) async {
-    return _remote.verifyOtp(code: code);
+    return _remote.verifyOtp(code: code, phone: phone);
   }
 
   @override
