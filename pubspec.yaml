@@ -1,0 +1,37 @@
+name: velix_partner
+description: "Velix Partner App - Fleet Host Management, Payouts, Inspection & Vendor Operations Application"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  velix_core:
+    path: packages/velix_core
+  flutter_riverpod: ^2.5.1
+  go_router: ^14.2.0
+  dio: ^5.4.3+1
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.2.3
+  intl: ^0.19.0
+  cached_network_image: ^3.3.1
+  flutter_svg: ^2.0.10+1
+  shimmer: ^3.0.0
+  cupertino_icons: ^1.0.8
+  supabase_flutter: ^2.8.0
+  image_picker: ^1.1.2
+  file_picker: ^8.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/screens/
+    - assets/images/
