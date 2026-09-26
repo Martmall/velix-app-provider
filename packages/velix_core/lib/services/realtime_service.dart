@@ -50,7 +50,6 @@ class VelixRealtimeService {
           .from('bookings')
           .stream(primaryKey: ['id'])
           .eq('customer_user_id', customerId)
-          .order('created_at', ascending: false)
           .handleError((err) {
             debugPrint('[VelixRealtimeService] streamCustomerBookings suppressed error: $err');
           });
@@ -70,7 +69,6 @@ class VelixRealtimeService {
           .from('bookings')
           .stream(primaryKey: ['id'])
           .eq('vendor_id', partnerId)
-          .order('created_at', ascending: false)
           .handleError((err) {
             debugPrint('[VelixRealtimeService] streamPartnerBookings suppressed error: $err');
           });
@@ -108,7 +106,6 @@ class VelixRealtimeService {
       return supa
           .from('vehicles')
           .stream(primaryKey: ['id'])
-          .order('created_at', ascending: false)
           .handleError((err) {
             debugPrint('[VelixRealtimeService] streamVehicles suppressed error: $err');
           });
@@ -128,7 +125,6 @@ class VelixRealtimeService {
           .from('notifications')
           .stream(primaryKey: ['id'])
           .eq('user_id', userId)
-          .order('created_at', ascending: false)
           .handleError((err) {
             debugPrint('[VelixRealtimeService] streamNotifications suppressed error: $err');
           });
@@ -148,7 +144,6 @@ class VelixRealtimeService {
           .from('chat_messages')
           .stream(primaryKey: ['id'])
           .eq('booking_id', bookingId)
-          .order('created_at', ascending: true)
           .handleError((err) {
             debugPrint('[VelixRealtimeService] streamChatMessages suppressed error: $err');
           });
@@ -170,7 +165,7 @@ class VelixRealtimeService {
       } else if (userId != null && userId.isNotEmpty) {
         query = query.eq('user_id', userId);
       }
-      return query.order('created_at', ascending: false).handleError((err) {
+      return query.handleError((err) {
         debugPrint('[VelixRealtimeService] streamDisputes suppressed error: $err');
       });
     } catch (e) {
