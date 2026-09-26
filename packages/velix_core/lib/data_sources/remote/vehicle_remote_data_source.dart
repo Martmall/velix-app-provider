@@ -18,30 +18,44 @@ class VehicleRemoteDataSource {
         if (minPrice != null) 'min_price': minPrice,
         if (maxPrice != null) 'max_price': maxPrice,
         if (partnerId != null) 'provider_id': partnerId,
-        'per_page': 100,
+        'per_page': 500,
+        'limit': 500,
       });
       final rawData = response.data;
       List list = [];
       if (rawData is List) {
         list = rawData;
       } else if (rawData is Map) {
-        list = rawData['data'] ?? rawData['vehicles'] ?? rawData['items'] ?? rawData['cars'] ?? [];
+        list = rawData['data'] ?? rawData['vehicles'] ?? rawData['items'] ?? rawData['cars'] ?? rawData['results'] ?? rawData['rows'] ?? [];
       }
       return list.map((json) => CarModel.fromJson(json is Map<String, dynamic> ? json : Map<String, dynamic>.from(json))).toList();
     } catch (_) {
-      // Also attempt /vehicles fallback
-      final response = await _apiClient.get('/vehicles', queryParameters: {
-        if (category != null && category != 'All') 'category': category,
-        if (search != null && search.isNotEmpty) 'search': search,
-      });
-      final rawData = response.data;
-      List list = [];
-      if (rawData is List) {
-        list = rawData;
-      } else if (rawData is Map) {
-        list = rawData['data'] ?? rawData['vehicles'] ?? rawData['items'] ?? rawData['cars'] ?? [];
+      try {
+        final response = await _apiClient.get('/vehicles', queryParameters: {
+          if (category != null && category != 'All') 'category': category,
+          if (search != null && search.isNotEmpty) 'search': search,
+          'per_page': 500,
+          'limit': 500,
+        });
+        final rawData = response.data;
+        List list = [];
+        if (rawData is List) {
+          list = rawData;
+        } else if (rawData is Map) {
+          list = rawData['data'] ?? rawData['vehicles'] ?? rawData['items'] ?? rawData['cars'] ?? rawData['results'] ?? rawData['rows'] ?? [];
+        }
+        return list.map((json) => CarModel.fromJson(json is Map<String, dynamic> ? json : Map<String, dynamic>.from(json))).toList();
+      } catch (_) {
+        final response = await _apiClient.get('/all-vehicles');
+        final rawData = response.data;
+        List list = [];
+        if (rawData is List) {
+          list = rawData;
+        } else if (rawData is Map) {
+          list = rawData['data'] ?? rawData['vehicles'] ?? rawData['items'] ?? rawData['cars'] ?? [];
+        }
+        return list.map((json) => CarModel.fromJson(json is Map<String, dynamic> ? json : Map<String, dynamic>.from(json))).toList();
       }
-      return list.map((json) => CarModel.fromJson(json is Map<String, dynamic> ? json : Map<String, dynamic>.from(json))).toList();
     }
   }
 
