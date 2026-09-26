@@ -69,7 +69,10 @@ class RemoteVehicleRepository implements IVehicleRepository {
         search: searchQuery,
       );
       if (remoteList.isNotEmpty) {
-        return _filterVehicles(remoteList, category, searchQuery, location);
+        final existingNames = remoteList.map((c) => c.name.toLowerCase().trim()).toSet();
+        final extraSamples = CarModel.sampleCars.where((s) => !existingNames.contains(s.name.toLowerCase().trim())).toList();
+        final combined = [...remoteList, ...extraSamples];
+        return _filterVehicles(combined, category, searchQuery, location);
       }
     } catch (_) {}
     return _filterVehicles(CarModel.sampleCars, category, searchQuery, location);

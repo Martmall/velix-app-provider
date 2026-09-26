@@ -48,15 +48,30 @@ class CarModel {
   });
 
   factory CarModel.fromJson(Map<String, dynamic> json) {
-    final brand = (json['brand'] ?? json['make'] ?? '').toString();
-    final model = (json['model'] ?? '').toString();
-    final title = json['name'] ?? json['title'];
+    final brand = (json['brand'] ?? json['make'] ?? json['manufacturer'] ?? '').toString();
+    final model = (json['model'] ?? json['model_name'] ?? '').toString();
+    final title = json['name'] ?? json['title'] ?? json['vehicle_name'];
     final name = title != null && title.toString().isNotEmpty
         ? title.toString()
         : (brand.isNotEmpty ? '$brand $model'.trim() : 'Vehicle');
-    final price = (json['pricePerDay'] ?? json['price_per_day'] ?? json['daily_rate'] as num?)?.toDouble() ?? 0.0;
 
-    String img = (json['imageUrl'] ?? json['image_url'] ?? json['main_image_url'] ?? json['main_image'] ?? json['image'] ?? '').toString();
+    double parsePrice(dynamic val) {
+      if (val == null) return 0.0;
+      if (val is num) return val.toDouble();
+      if (val is String) {
+        final cleaned = val.replaceAll(RegExp(r'[^0-9.]'), '');
+        return double.tryParse(cleaned) ?? 0.0;
+      }
+      return 0.0;
+    }
+
+    final rawPrice = json['pricePerDay'] ?? json['price_per_day'] ?? json['daily_rate'] ?? json['dailyRate'] ?? json['price'] ?? json['rental_rate'] ?? json['rate'] ?? json['daily_price'];
+    double price = parsePrice(rawPrice);
+    if (price <= 0.0) {
+      price = 45000.0;
+    }
+
+    String img = (json['imageUrl'] ?? json['image_url'] ?? json['main_image_url'] ?? json['main_image'] ?? json['image'] ?? json['photo'] ?? json['cover_image'] ?? '').toString();
     if (img.isEmpty && json['photos'] is List && (json['photos'] as List).isNotEmpty) {
       final first = (json['photos'] as List).first;
       img = first is Map ? (first['url'] ?? first['photo_url'] ?? '') : first.toString();
@@ -64,6 +79,12 @@ class CarModel {
     if (img.isEmpty && json['images'] is List && (json['images'] as List).isNotEmpty) {
       final first = (json['images'] as List).first;
       img = first is Map ? (first['url'] ?? first['image_url'] ?? '') : first.toString();
+    }
+    if (img.startsWith('/')) {
+      img = 'https://velix-backend-a4jx.onrender.com$img';
+    }
+    if (img.isEmpty || (!img.startsWith('http://') && !img.startsWith('https://'))) {
+      img = _getDefaultCarImage(name, brand, (json['category'] ?? '').toString());
     }
 
     final status = (json['operational_status'] ?? json['status'] ?? 'AVAILABLE').toString().toUpperCase();
@@ -107,6 +128,9 @@ class CarModel {
     } else if (json['images'] is List) {
       parsedGallery = (json['images'] as List).map((i) => i is Map ? (i['url'] ?? i['image_url'] ?? '').toString() : i.toString()).where((s) => s.isNotEmpty).toList();
     }
+    if (parsedGallery.isEmpty) {
+      parsedGallery = [img];
+    }
 
     return CarModel(
       id: json['id']?.toString() ?? '',
@@ -132,6 +156,29 @@ class CarModel {
       unavailableDates: List<String>.from(unavail.map((u) => u.toString())),
       licensePlate: json['licensePlate'] ?? json['license_plate'] ?? json['plate_number'],
     );
+  }
+
+  static String _getDefaultCarImage(String name, String brand, String category) {
+    final nameLower = name.toLowerCase();
+    final brandLower = brand.toLowerCase();
+    final catLower = category.toLowerCase();
+
+    if (brandLower.contains('mercedes') || nameLower.contains('benz') || nameLower.contains('gle') || nameLower.contains('c-class') || nameLower.contains('s-class')) {
+      return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=85';
+    } else if (brandLower.contains('toyota') || nameLower.contains('camry') || nameLower.contains('venza') || nameLower.contains('land cruiser') || nameLower.contains('corolla')) {
+      return 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=1200&q=85';
+    } else if (brandLower.contains('range') || brandLower.contains('land rover') || nameLower.contains('velar') || catLower.contains('luxury')) {
+      return 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=85';
+    } else if (brandLower.contains('tesla') || catLower.contains('electric')) {
+      return 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=1200&q=85';
+    } else if (brandLower.contains('bmw')) {
+      return 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=85';
+    } else if (brandLower.contains('porsche') || catLower.contains('sports')) {
+      return 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=85';
+    } else if (catLower.contains('suv')) {
+      return 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=1200&q=85';
+    }
+    return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=85';
   }
 
   Map<String, dynamic> toJson() {
