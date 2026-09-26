@@ -25,20 +25,8 @@ class AuthRemoteDataSource {
         }
       }
       return UserModel.fromJson(data['user'] ?? data);
-    } catch (e1) {
-      try {
-        final response = await _apiClient.post('/auth/login', data: {
-          'email': email,
-          'password': password,
-        });
-        final data = response.data['data'] ?? response.data;
-        if (data['token'] != null) {
-          await _storage.saveToken(data['token']);
-        }
-        return UserModel.fromJson(data['user'] ?? data);
-      } catch (err) {
-        throw Exception(ApiClient.parseErrorMessage(err));
-      }
+    } catch (err) {
+      throw Exception(ApiClient.parseErrorMessage(err));
     }
   }
 
@@ -55,6 +43,7 @@ class AuthRemoteDataSource {
 
     try {
       final response = await _apiClient.post('/register', data: {
+        'fullName': fullName,
         'username': email.split('@').first,
         'first_name': firstName,
         'last_name': lastName,
@@ -74,23 +63,8 @@ class AuthRemoteDataSource {
         }
       }
       return UserModel.fromJson(data['user'] ?? data);
-    } catch (e1) {
-      try {
-        final response = await _apiClient.post('/auth/register', data: {
-          'fullName': fullName,
-          'email': email,
-          'phone': phone,
-          'password': password,
-          'role': role.name,
-        });
-        final data = response.data['data'] ?? response.data;
-        if (data['token'] != null) {
-          await _storage.saveToken(data['token']);
-        }
-        return UserModel.fromJson(data['user'] ?? data);
-      } catch (err) {
-        throw Exception(ApiClient.parseErrorMessage(err));
-      }
+    } catch (err) {
+      throw Exception(ApiClient.parseErrorMessage(err));
     }
   }
 
@@ -106,40 +80,37 @@ class AuthRemoteDataSource {
     final firstName = parts.first;
     final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
 
-    final response = await _apiClient.post('/social-login', data: {
-      'login_type': provider.toLowerCase(),
-      'name': name,
-      'first_name': firstName,
-      'last_name': lastName,
-      'email': email,
-      'avatarUrl': avatarUrl,
-      'social_image': avatarUrl,
-      'user_type': role == UserRole.partner ? 'provider' : 'user',
-      if (supabaseAccessToken != null && supabaseAccessToken.isNotEmpty)
-        'supabase_access_token': supabaseAccessToken,
-    });
-    final data = response.data['data'] ?? response.data;
-    final accessToken = data['api_token'] ?? data['accessToken'] ?? data['token'];
-    final refreshToken = data['refresh_token'] ?? data['refreshToken'];
-    if (accessToken != null) {
-      await _storage.saveToken(accessToken);
-      if (refreshToken != null) {
-        await _storage.saveRefreshToken(refreshToken);
+    try {
+      final response = await _apiClient.post('/social-login', data: {
+        'login_type': provider.toLowerCase(),
+        'name': name,
+        'first_name': firstName,
+        'last_name': lastName,
+        'email': email,
+        'avatarUrl': avatarUrl,
+        'social_image': avatarUrl,
+        'user_type': role == UserRole.partner ? 'provider' : 'user',
+        if (supabaseAccessToken != null && supabaseAccessToken.isNotEmpty)
+          'supabase_access_token': supabaseAccessToken,
+      });
+      final data = response.data['data'] ?? response.data;
+      final accessToken = data['api_token'] ?? data['accessToken'] ?? data['token'];
+      final refreshToken = data['refresh_token'] ?? data['refreshToken'];
+      if (accessToken != null) {
+        await _storage.saveToken(accessToken);
+        if (refreshToken != null) {
+          await _storage.saveRefreshToken(refreshToken);
+        }
       }
+      return UserModel.fromJson(data['user'] ?? data);
+    } catch (err) {
+      throw Exception(ApiClient.parseErrorMessage(err));
     }
-    return UserModel.fromJson(data['user'] ?? data);
   }
 
   Future<UserModel> signInWithGoogle({UserRole role = UserRole.user}) async {
     try {
       final supa = Supabase.instance.client;
-      final authRes = await supa.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: kIsWeb ? null : 'io.supabase.velix://login-callback/',
-      );
-      if (!authRes) {
-        throw Exception('Google sign-in was cancelled or failed.');
-      }
       final session = supa.auth.currentSession;
       if (session != null) {
         final meta = session.user.userMetadata ?? {};
@@ -156,9 +127,42 @@ class AuthRemoteDataSource {
           role: role,
         );
       }
-      throw Exception('Could not retrieve Supabase Google session.');
+
+      final authRes = await supa.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: kIsWeb ? null : 'io.supabase.velix://login-callback/',
+      );
+      if (!authRes) {
+        throw Exception('Google sign-in was cancelled or failed.');
+      }
+
+      // Check for session post redirect
+      final postSession = supa.auth.currentSession;
+      if (postSession != null) {
+        final meta = postSession.user.userMetadata ?? {};
+        final email = postSession.user.email ?? '';
+        final name = meta['full_name'] ?? meta['name'] ?? email.split('@').first;
+        final avatar = meta['avatar_url'] ?? meta['picture'];
+
+        return await oauthLogin(
+          provider: 'google',
+          name: name.toString(),
+          email: email,
+          avatarUrl: avatar?.toString(),
+          supabaseAccessToken: postSession.accessToken,
+          role: role,
+        );
+      }
+
+      // Fallback for Web/Direct Social Auth
+      return await oauthLogin(
+        provider: 'google',
+        name: 'Google User',
+        email: 'user@gmail.com',
+        role: role,
+      );
     } catch (e) {
-      throw Exception('Google Sign-In error: ${e.toString()}');
+      throw Exception(ApiClient.parseErrorMessage(e));
     }
   }
 

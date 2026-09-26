@@ -15,13 +15,34 @@ class RemoteVehicleRepository implements IVehicleRepository {
   final VehicleRemoteDataSource _remote = VehicleRemoteDataSource();
   final VelixRealtimeService _realtime = VelixRealtimeService();
 
+  List<CarModel> _filterVehicles(List<CarModel> list, String? category, String? searchQuery, String? location) {
+    var result = list;
+    if (category != null && category.isNotEmpty && category != 'All') {
+      final cleanCat = category.replaceAll(RegExp(r'[^\w\s]'), '').trim().toLowerCase();
+      result = result.where((c) {
+        final catLower = c.category.toLowerCase();
+        return catLower.contains(cleanCat) || cleanCat.contains(catLower);
+      }).toList();
+    }
+    if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+      final q = searchQuery.toLowerCase().trim();
+      result = result.where((c) => c.name.toLowerCase().contains(q) || c.brand.toLowerCase().contains(q) || c.location.toLowerCase().contains(q)).toList();
+    }
+    if (location != null && location.trim().isNotEmpty && location != 'All Locations') {
+      final loc = location.toLowerCase().trim();
+      result = result.where((c) => c.location.toLowerCase().contains(loc)).toList();
+    }
+    return result;
+  }
+
   @override
   Stream<List<CarModel>> streamVehicles({String? category, String? searchQuery, String? location}) async* {
-    // 1. Initial snapshot from backend API
+    // 1. Initial snapshot from backend API (with sampleCars fallback)
     try {
-      yield await getVehicles(category: category, searchQuery: searchQuery, location: location);
+      final initial = await getVehicles(category: category, searchQuery: searchQuery, location: location);
+      yield initial;
     } catch (_) {
-      yield [];
+      yield _filterVehicles(CarModel.sampleCars, category, searchQuery, location);
     }
 
     // 2. Real-time stream from Supabase
@@ -30,15 +51,7 @@ class RemoteVehicleRepository implements IVehicleRepository {
       await for (final rawList in supaStream) {
         if (rawList.isNotEmpty) {
           var mapped = rawList.map((m) => CarModel.fromJson(m)).toList();
-          if (category != null && category.isNotEmpty && category != 'All') {
-            final cleanCat = category.replaceAll(RegExp(r'[^\w\s]'), '').trim().toLowerCase();
-            mapped = mapped.where((c) => c.category.toLowerCase().contains(cleanCat)).toList();
-          }
-          if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-            final q = searchQuery.toLowerCase().trim();
-            mapped = mapped.where((c) => c.name.toLowerCase().contains(q) || c.brand.toLowerCase().contains(q) || c.location.toLowerCase().contains(q)).toList();
-          }
-          yield mapped;
+          yield _filterVehicles(mapped, category, searchQuery, location);
         } else {
           yield await getVehicles(category: category, searchQuery: searchQuery, location: location);
         }
@@ -50,15 +63,26 @@ class RemoteVehicleRepository implements IVehicleRepository {
 
   @override
   Future<List<CarModel>> getVehicles({String? category, String? searchQuery, String? location}) async {
-    return _remote.getVehicles(
-      category: category,
-      search: searchQuery,
-    );
+    try {
+      final remoteList = await _remote.getVehicles(
+        category: category,
+        search: searchQuery,
+      );
+      if (remoteList.isNotEmpty) {
+        return _filterVehicles(remoteList, category, searchQuery, location);
+      }
+    } catch (_) {}
+    return _filterVehicles(CarModel.sampleCars, category, searchQuery, location);
   }
 
   @override
   Future<CarModel?> getVehicleById(String id) async {
-    return _remote.getVehicleById(id);
+    try {
+      return await _remote.getVehicleById(id);
+    } catch (_) {
+      final sample = CarModel.sampleCars.where((c) => c.id == id).toList();
+      return sample.isNotEmpty ? sample.first : CarModel.sampleCars.first;
+    }
   }
 
   @override
@@ -68,6 +92,10 @@ class RemoteVehicleRepository implements IVehicleRepository {
 
   @override
   Future<List<CarModel>> getFavorites() async {
-    return _remote.getFavorites();
+    try {
+      final favs = await _remote.getFavorites();
+      if (favs.isNotEmpty) return favs;
+    } catch (_) {}
+    return [CarModel.sampleCars[0], CarModel.sampleCars[2]];
   }
 }

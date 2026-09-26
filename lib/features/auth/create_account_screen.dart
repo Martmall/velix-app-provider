@@ -67,6 +67,14 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           context.go(AppRoutes.otpVerification, extra: formattedPhone);
         } else if (mounted) {
           setState(() => _isLoading = false);
+          final errorMsg = ref.read(partnerAuthProvider).error;
+          VelixToast.showError(
+            context,
+            errorMsg != null && errorMsg.isNotEmpty
+                ? errorMsg.replaceAll('Exception:', '').trim()
+                : 'Partner registration failed. Please check your details.',
+            title: 'Registration Failed',
+          );
         }
       } catch (e) {
         if (mounted) {

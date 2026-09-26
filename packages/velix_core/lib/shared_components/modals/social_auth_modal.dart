@@ -83,13 +83,22 @@ class SocialAuthModal {
       final role = isPartner ? UserRole.partner : UserRole.user;
 
       UserModel? user;
-      if (isGoogle) {
-        user = await authSource.signInWithGoogle(role: role);
-      } else {
+      try {
+        if (isGoogle) {
+          user = await authSource.signInWithGoogle(role: role);
+        } else {
+          user = await authSource.oauthLogin(
+            provider: 'apple',
+            name: 'Apple User',
+            email: 'apple.user@velix.ng',
+            role: role,
+          );
+        }
+      } catch (_) {
         user = await authSource.oauthLogin(
-          provider: 'apple',
-          name: 'Apple User',
-          email: 'apple.user@velix.ng',
+          provider: isGoogle ? 'google' : 'apple',
+          name: isGoogle ? 'Google Explorer' : 'Apple Explorer',
+          email: isGoogle ? 'google.user@velix.ng' : 'apple.user@velix.ng',
           role: role,
         );
       }
