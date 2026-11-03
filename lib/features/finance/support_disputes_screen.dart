@@ -25,16 +25,21 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
     final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
     final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9);
 
-    final bookingOptions = bookings.isNotEmpty
-        ? bookings.map((b) => '${b.id.substring(0, b.id.length > 8 ? 8 : b.id.length)} (${b.carName})').toList()
-        : ['General Partner Inquiry'];
+    if (bookings.isEmpty) {
+      VelixToast.showInfo(context, 'Disputes are raised on a booking. Use the support form below for anything else.');
+      return;
+    }
+    // Label -> booking, so the full id is sent (the label shows a shortened one).
+    final byLabel = {
+      for (final b in bookings) '${b.id.substring(b.id.length > 6 ? b.id.length - 6 : 0).toUpperCase()} (${b.carName})': b,
+    };
+    final bookingOptions = byLabel.keys.toList();
 
     final reasonController = TextEditingController();
     final amountController = TextEditingController();
     String selectedBooking = bookingOptions.first;
     String selectedReason = 'Vehicle Damage';
     bool isSubmitting = false;
-    String? evidencePhoto;
 
     showModalBottomSheet(
       context: context,
@@ -139,37 +144,31 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                   const SizedBox(height: 14),
                   GestureDetector(
                     onTap: () async {
-                      final photo = await ImagePickerModal.show(
-                        context: context,
-                        title: 'Attach Damage Photo Evidence',
-                        isVehicle: true,
-                      );
-                      if (photo != null) {
-                        setModalState(() => evidencePhoto = photo);
-                      }
+                      // Disputes are text-only on the backend for now.
+                      VelixToast.showInfo(context, 'Photo evidence is coming soon -- describe the damage in the details.');
                     },
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: inputBg,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: evidencePhoto != null ? const Color(0xFF10B981) : borderColor),
+                        border: Border.all(color: borderColor),
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            evidencePhoto != null ? Icons.check_circle : Icons.camera_alt,
-                            color: evidencePhoto != null ? const Color(0xFF10B981) : const Color(0xFFC84C00),
+                          const Icon(
+                            Icons.camera_alt,
+                            color: Color(0xFFC84C00),
                             size: 20,
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              evidencePhoto != null ? 'Damage Photo Attached (Tap to change)' : 'Attach Damage Evidence Photo',
+                              'Attach Damage Evidence Photo',
                               style: TextStyle(
                                 fontSize: 12,
-                                fontWeight: evidencePhoto != null ? FontWeight.bold : FontWeight.normal,
-                                color: evidencePhoto != null ? const Color(0xFF10B981) : textColor,
+                                fontWeight: FontWeight.normal,
+                                color: textColor,
                               ),
                             ),
                           ),
@@ -182,34 +181,26 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                     text: 'Submit Dispute Claim',
                     isLoading: isSubmitting,
                     onPressed: () async {
-                      final amount = double.tryParse(amountController.text) ?? 45000.0;
+                      final booking = byLabel[selectedBooking]!;
+                      final amount = double.tryParse(amountController.text.replaceAll(',', '').trim());
+                      // The dispute API has no amount field; the claim travels in the description.
+                      final description = [
+                        reasonController.text.trim(),
+                        if (amount != null && amount > 0) 'Claimed amount: ₦${amount.toStringAsFixed(0)}',
+                      ].where((line) => line.isNotEmpty).join('\n');
                       setModalState(() => isSubmitting = true);
-                      final authState = ref.read(partnerAuthProvider);
-                      final partnerId = authState.user?.id ?? 'partner_${DateTime.now().millisecondsSinceEpoch}';
-
                       try {
                         final dispute = await ref.read(supportRepoProvider).createDispute(
-                              partnerId: partnerId,
-                              bookingId: selectedBooking.split(' ').first,
-                              carName: selectedBooking.contains('(') ? selectedBooking.split('(').last.replaceAll(')', '') : 'Vehicle',
+                              bookingId: booking.id,
                               reason: selectedReason,
-                              description: reasonController.text.trim(),
-                              claimAmount: amount,
-                              evidenceImages: evidencePhoto != null ? [evidencePhoto!] : [],
+                              description: description,
                             );
-                        setState(() {
-                          _localDisputes.insert(0, dispute);
-                        });
-                      } catch (_) {}
-
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Dispute claim submitted successfully to Velix Support!'),
-                            backgroundColor: Color(0xFF10B981),
-                          ),
-                        );
+                        if (mounted) setState(() => _localDisputes.insert(0, dispute));
+                        if (context.mounted) Navigator.pop(context);
+                        if (mounted) VelixToast.showSuccess(this.context, 'Dispute raised. Velix support will review it.');
+                      } catch (e) {
+                        setModalState(() => isSubmitting = false);
+                        if (mounted) VelixToast.showError(this.context, ApiClient.parseErrorMessage(e));
                       }
                     },
                   ),
@@ -225,32 +216,40 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
   Future<void> _sendMessage() async {
     final message = _messageController.text.trim();
     if (message.isEmpty) return;
-
     setState(() => _isSending = true);
-    final authState = ref.read(partnerAuthProvider);
-    final partnerId = authState.user?.id ?? 'partner_01';
-    final partnerName = authState.user?.fullName ?? 'Host Partner';
-
     try {
       await ref.read(supportRepoProvider).createSupportTicket(
-            userId: partnerId,
             subject: _subjectController.text.trim().isNotEmpty ? _subjectController.text.trim() : 'Partner Support Request',
             category: 'Partner Inquiry',
-            description: '[$partnerName]: $message',
+            description: message,
           );
-    } catch (_) {}
+      if (!mounted) return;
+      _messageController.clear();
+      _subjectController.clear();
+      VelixToast.showSuccess(context, 'Support ticket submitted. We\'ll reply by email or in the app.', title: 'Ticket Submitted');
+    } catch (e) {
+      if (mounted) VelixToast.showError(context, ApiClient.parseErrorMessage(e));
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
 
-    if (mounted) {
-      setState(() {
-        _isSending = false;
-        _messageController.clear();
-        _subjectController.clear();
-      });
-      VelixToast.showSuccess(
-        context,
-        'Support ticket submitted! Admin team has been notified.',
-        title: 'Ticket Submitted',
-      );
+  @override
+  void initState() {
+    super.initState();
+    _loadDisputes();
+  }
+
+  Future<void> _loadDisputes() async {
+    try {
+      final disputes = await ref.read(supportRepoProvider).getMyDisputes();
+      if (mounted) {
+        setState(() => _localDisputes
+          ..clear()
+          ..addAll(disputes));
+      }
+    } catch (_) {
+      // The list stays empty; raising a dispute still works.
     }
   }
 
