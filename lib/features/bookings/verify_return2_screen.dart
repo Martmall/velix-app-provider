@@ -19,22 +19,30 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
   bool _noDamage = true;
   bool _fuelOk = true;
 
-  void _confirmReturn(BookingModel? currentBooking) async {
-    setState(() => _isLoading = true);
-    if (currentBooking != null) {
-      await ref.read(bookingRepoProvider).updateBookingStatus(currentBooking.id, BookingStatus.completed);
-      ref.invalidate(partnerBookingsProvider);
+  /// Partner has inspected the returned car; the server moves the booking ACTIVE -> COMPLETED.
+  Future<void> _confirmReturn(BookingModel? currentBooking) async {
+    if (currentBooking == null) {
+      VelixToast.showInfo(context, 'There is no active rental to close.');
+      return;
     }
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (mounted) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Return completed for ${currentBooking?.userName ?? "Customer"}! Payment released to your earnings.'),
-          backgroundColor: const Color(0xFF10B981),
-        ),
-      );
-      context.go(AppRoutes.earnings);
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(bookingRepoProvider).completeRental(currentBooking.id);
+      ref.invalidate(partnerBookingsProvider);
+      ref.invalidate(partnerBalanceProvider);
+      if (!mounted) return;
+      if (_noDamage && _fuelOk) {
+        VelixToast.showSuccess(context, 'Return confirmed. The rental is complete.');
+        context.go(AppRoutes.earnings);
+      } else {
+        // The condition checklist isn't stored by the API; issues are claimed through a dispute.
+        VelixToast.showInfo(context, 'Return confirmed. To claim for damage or fuel, raise a dispute on this booking.');
+        context.go(AppRoutes.supportDisputes);
+      }
+    } catch (e) {
+      if (mounted) VelixToast.showError(context, ApiClient.parseErrorMessage(e));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -49,11 +57,11 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
     final innerBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6);
 
     final allBookings = ref.watch(partnerBookingsProvider).value ?? [];
-    final booking = widget.booking ?? allBookings.where((b) => b.status == BookingStatus.active || b.status == BookingStatus.confirmed).firstOrNull;
+    final booking = widget.booking ?? allBookings.where((b) => b.status == BookingStatus.active).firstOrNull;
 
     final customerName = booking?.userName.isNotEmpty == true ? booking!.userName : 'Customer';
     final vehicleName = booking?.carName.isNotEmpty == true ? booking!.carName : 'Selected Vehicle';
-    final refCode = booking?.id ?? 'VR-LIVE-002';
+    final refCode = booking?.id ?? '';
     final carImg = booking?.carImage.isNotEmpty == true ? booking!.carImage : CarImageCatalog.mercedesGLE;
     final returnDate = booking != null ? '${booking.endDate.day}/${booking.endDate.month}/${booking.endDate.year}' : 'Today';
 
