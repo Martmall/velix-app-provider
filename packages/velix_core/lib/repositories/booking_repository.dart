@@ -1,144 +1,90 @@
 import 'dart:async';
 import '../models/booking_model.dart';
+import '../models/car_model.dart';
+import '../network/api_client.dart';
 import '../data_sources/remote/booking_remote_data_source.dart';
-import '../services/realtime_service.dart';
 
+/// Booking lifecycle (booking.service.ts):
+///   customer creates -> PENDING -> partner confirms -> CONFIRMED (or REJECTED)
+///   -> partner starts at pickup -> ACTIVE -> partner completes at return -> COMPLETED.
+/// Either party can cancel before the rental starts.
 abstract class IBookingRepository {
   Future<BookingModel> createBooking({
-    required String carId,
-    required String carName,
-    required String carImage,
-    required String userId,
-    required String userName,
-    required String partnerId,
-    required DateTime startDate,
-    required DateTime endDate,
-    required String pickupLocation,
-    required String dropoffLocation,
-    required double totalPrice,
-    required String paymentMethod,
+    required CarModel car,
+    required DateTime pickupAt,
+    required DateTime dropoffAt,
+    String? notes,
   });
 
-  Future<List<BookingModel>> getUserBookings(String userId);
-  Stream<List<BookingModel>> streamUserBookings(String userId);
-  Future<List<BookingModel>> getPartnerBookings(String partnerId);
-  Stream<List<BookingModel>> streamPartnerBookings(String partnerId);
-  Future<BookingModel?> getBookingById(String id);
-  Future<void> updateBookingStatus(String bookingId, BookingStatus status);
-  Future<void> toggleKeylessRemote(String bookingId, bool isUnlocked);
+  /// The signed-in user's bookings: their own as a customer, or those on their vehicles as a
+  /// partner (scoped by the backend).
+  Future<List<BookingModel>> getMyBookings();
+  Stream<List<BookingModel>> streamMyBookings();
+  Future<BookingModel> getBookingById(String id);
+
+  Future<BookingModel> confirmBooking(String id);
+  Future<BookingModel> rejectBooking(String id, {String? reason});
+  Future<BookingModel> cancelBooking(String id, {String? reason});
+  Future<BookingModel> startRental(String id);
+  Future<BookingModel> completeRental(String id);
 }
 
 class RemoteBookingRepository implements IBookingRepository {
   final BookingRemoteDataSource _remote = BookingRemoteDataSource();
-  final VelixRealtimeService _realtime = VelixRealtimeService();
-
-  @override
-  Stream<List<BookingModel>> streamUserBookings(String userId) async* {
-    try {
-      yield await getUserBookings(userId);
-    } catch (_) {
-      yield [];
-    }
-
-    try {
-      final supaStream = _realtime.streamCustomerBookings(userId);
-      await for (final rawList in supaStream) {
-        if (rawList.isNotEmpty) {
-          yield rawList.map((m) => BookingModel.fromJson(m)).toList();
-        } else {
-          yield await getUserBookings(userId);
-        }
-      }
-    } catch (_) {
-      yield await getUserBookings(userId);
-    }
-  }
-
-  @override
-  Stream<List<BookingModel>> streamPartnerBookings(String partnerId) async* {
-    try {
-      yield await getPartnerBookings(partnerId);
-    } catch (_) {
-      yield [];
-    }
-
-    try {
-      final supaStream = _realtime.streamPartnerBookings(partnerId);
-      await for (final rawList in supaStream) {
-        if (rawList.isNotEmpty) {
-          yield rawList.map((m) => BookingModel.fromJson(m)).toList();
-        } else {
-          yield await getPartnerBookings(partnerId);
-        }
-      }
-    } catch (_) {
-      yield await getPartnerBookings(partnerId);
-    }
-  }
+  static const _refreshInterval = Duration(seconds: 30);
 
   @override
   Future<BookingModel> createBooking({
-    required String carId,
-    required String carName,
-    required String carImage,
-    required String userId,
-    required String userName,
-    required String partnerId,
-    required DateTime startDate,
-    required DateTime endDate,
-    required String pickupLocation,
-    required String dropoffLocation,
-    required double totalPrice,
-    required String paymentMethod,
-  }) async {
-    final booking = BookingModel(
-      id: 'VLX-${(DateTime.now().millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}-NG',
-      carId: carId,
-      carName: carName,
-      carImage: carImage,
-      userId: userId,
-      userName: userName,
-      partnerId: partnerId,
-      startDate: startDate,
-      endDate: endDate,
-      pickupLocation: pickupLocation,
-      dropoffLocation: dropoffLocation,
-      totalPrice: totalPrice,
-      status: BookingStatus.confirmed,
-      paymentMethod: paymentMethod,
+    required CarModel car,
+    required DateTime pickupAt,
+    required DateTime dropoffAt,
+    String? notes,
+  }) {
+    final locationId = car.locationId;
+    if (locationId == null || locationId.isEmpty) {
+      throw ApiException('This vehicle has no pickup location yet, so it can\'t be booked.');
+    }
+    return _remote.createBooking(
+      vehicleId: car.id,
+      pickupLocationId: locationId,
+      pickupAt: pickupAt,
+      dropoffAt: dropoffAt,
+      notes: notes,
     );
-
-    return _remote.createBooking(booking);
   }
 
   @override
-  Future<List<BookingModel>> getUserBookings(String userId) async {
-    final list = await _remote.getBookings(userId: userId);
-    return list.where((b) => b.userId == userId || userId.isEmpty).toList();
+  Future<List<BookingModel>> getMyBookings() async {
+    final bookings = await _remote.getBookings();
+    bookings.sort((a, b) => b.startDate.compareTo(a.startDate));
+    return bookings;
   }
 
+  /// Polls instead of a realtime subscription: the bookings live in the backend's Postgres,
+  /// which isn't wired to Supabase Realtime.
   @override
-  Future<List<BookingModel>> getPartnerBookings(String partnerId) async {
-    final list = await _remote.getBookings(partnerId: partnerId);
-    return list.where((b) => b.partnerId == partnerId || partnerId.isEmpty).toList();
-  }
-
-  @override
-  Future<BookingModel?> getBookingById(String id) async {
-    return _remote.getBookingById(id);
-  }
-
-  @override
-  Future<void> updateBookingStatus(String bookingId, BookingStatus status) async {
-    if (status == BookingStatus.active) {
-      await _remote.verifyPickup(bookingId);
-    } else if (status == BookingStatus.completed) {
-      await _remote.verifyReturn(bookingId);
+  Stream<List<BookingModel>> streamMyBookings() async* {
+    while (true) {
+      yield await getMyBookings();
+      await Future<void>.delayed(_refreshInterval);
     }
   }
 
   @override
-  Future<void> toggleKeylessRemote(String bookingId, bool isUnlocked) async {
-    await _remote.toggleKeyless(bookingId, isUnlocked);
-  }
+  Future<BookingModel> getBookingById(String id) => _remote.getBookingById(id);
+
+  @override
+  Future<BookingModel> confirmBooking(String id) => _remote.confirmBooking(id);
+
+  @override
+  Future<BookingModel> rejectBooking(String id, {String? reason}) => _remote.rejectBooking(id, reason: reason);
+
+  @override
+  Future<BookingModel> cancelBooking(String id, {String? reason}) => _remote.cancelBooking(id, reason: reason);
+
+  @override
+  Future<BookingModel> startRental(String id) => _remote.startRental(id);
+
+  @override
+  Future<BookingModel> completeRental(String id) => _remote.completeRental(id);
 }

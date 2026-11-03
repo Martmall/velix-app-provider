@@ -2,17 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import '../../services/file_upload_service.dart';
+import '../../network/upload_file.dart';
 
+/// Lets the user pick a photo (camera/gallery) or a document, and returns it as an [UploadFile].
+/// Picking only -- the caller uploads it to the endpoint that fits (vehicle photos, verification
+/// documents, ...), so nothing is reported as "uploaded" before the server has actually accepted it.
 class ImagePickerModal {
-  static Future<String?> show({
+  static Future<UploadFile?> show({
     required BuildContext context,
     String title = 'Upload Photo',
     bool isVehicle = false,
     bool isDocument = false,
     String category = 'general',
   }) async {
-    return showModalBottomSheet<String>(
+    return showModalBottomSheet<UploadFile>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -45,7 +48,6 @@ class _ImagePickerSheet extends StatefulWidget {
 
 class _ImagePickerSheetState extends State<_ImagePickerSheet> {
   final ImagePicker _picker = ImagePicker();
-  final FileUploadService _uploadService = RemoteFileUploadService();
   bool _isUploading = false;
 
   Future<void> _handleFilePick({required bool fromCamera, required bool isDoc}) async {
@@ -59,7 +61,7 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
         try {
           final result = await FilePicker.platform.pickFiles(
             type: FileType.custom,
-            allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'],
+            allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
             withData: true,
           );
           if (result != null && result.files.isNotEmpty) {
@@ -139,22 +141,8 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
       }
 
       if ((filePath != null || fileBytes != null) && mounted) {
-        setState(() => _isUploading = true);
-        final targetPath = filePath ?? fileName ?? 'upload_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        final uploadedUrl = widget.isDocument
-            ? await _uploadService.uploadDocument(targetPath, docType: widget.category, fileBytes: fileBytes)
-            : await _uploadService.uploadImage(targetPath, category: widget.category, fileBytes: fileBytes);
-
-        if (mounted) {
-          Navigator.of(context).pop(uploadedUrl);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('File attached successfully: ${fileName ?? "Photo"}'),
-              backgroundColor: const Color(0xFF0C1830),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
+        final name = fileName ?? filePath?.split('/').last ?? 'upload_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        Navigator.of(context).pop(UploadFile(name: name, path: filePath, bytes: fileBytes));
       }
     } catch (e) {
       if (mounted) {

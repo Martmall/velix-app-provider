@@ -1,3 +1,5 @@
+import 'car_model.dart';
+
 enum BookingStatus {
   pending,
   confirmed,
@@ -24,6 +26,17 @@ class BookingModel {
   final String paymentMethod;
   final bool isKeylessUnlocked;
 
+  // Server-computed price breakdown (booking.service.ts): totalPrice = subtotal + fee + tax.
+  // The deposit is a separate refundable hold, not part of totalPrice.
+  final double subtotal;
+  final double fee;
+  final double tax;
+  final double depositAmount;
+  final String? pickupLocationId;
+  final String? driverId;
+  final String? notes;
+  final String? cancellationReason;
+
   String get customerName => userName;
 
   BookingModel({
@@ -42,94 +55,80 @@ class BookingModel {
     required this.status,
     required this.paymentMethod,
     this.isKeylessUnlocked = false,
+    this.subtotal = 0,
+    this.fee = 0,
+    this.tax = 0,
+    this.depositAmount = 0,
+    this.pickupLocationId,
+    this.driverId,
+    this.notes,
+    this.cancellationReason,
   });
 
+  /// Parses a booking from GET/POST /bookings. The backend returns only ids for the vehicle and
+  /// the parties, so vehicle name/image/location are filled in afterwards by [withVehicle] (the
+  /// same client-side join the web app does).
   factory BookingModel.fromJson(Map<String, dynamic> json) {
-    final vehicle = json['vehicle'] is Map ? json['vehicle'] as Map<String, dynamic> : null;
-    final customer = json['customer'] is Map ? json['customer'] as Map<String, dynamic> : (json['user'] is Map ? json['user'] as Map<String, dynamic> : null);
+    double money(dynamic value) => value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
+    DateTime date(dynamic value) => DateTime.tryParse('${value ?? ''}')?.toLocal() ?? DateTime.now();
 
-    final carId = (json['carId'] ?? json['car_id'] ?? json['vehicle_id'] ?? vehicle?['id'] ?? '').toString();
-    final carName = (json['carName'] ?? json['car_name'] ?? json['vehicle_name'] ?? vehicle?['name'] ?? vehicle?['title'] ?? (vehicle != null ? '${vehicle['make'] ?? ''} ${vehicle['model'] ?? ''}'.trim() : '')).toString();
-    final carImage = (json['carImage'] ?? json['car_image'] ?? json['vehicle_image'] ?? vehicle?['image_url'] ?? vehicle?['main_image'] ?? vehicle?['image'] ?? '').toString();
-
-    final userId = (json['userId'] ?? json['user_id'] ?? json['customer_id'] ?? customer?['id'] ?? '').toString();
-    final userName = (json['userName'] ?? json['user_name'] ?? json['customer_name'] ?? customer?['name'] ?? (customer != null ? '${customer['first_name'] ?? ''} ${customer['last_name'] ?? ''}'.trim() : '')).toString();
-    final partnerId = (json['partnerId'] ?? json['partner_id'] ?? json['provider_id'] ?? json['vendor_id'] ?? '').toString();
-
-    final startRaw = json['startDate'] ?? json['start_date'] ?? json['pickup_date'] ?? json['start_time'];
-    final endRaw = json['endDate'] ?? json['end_date'] ?? json['return_date'] ?? json['end_time'];
-
-    final startDate = startRaw != null ? (DateTime.tryParse(startRaw.toString()) ?? DateTime.now()) : DateTime.now();
-    final endDate = endRaw != null ? (DateTime.tryParse(endRaw.toString()) ?? DateTime.now().add(const Duration(days: 1))) : DateTime.now().add(const Duration(days: 1));
-
-    String pickup = (json['pickupLocation'] ?? json['pickup_location'] ?? json['pickup_address'] ?? '').toString();
-    String dropoff = (json['dropoffLocation'] ?? json['dropoff_location'] ?? json['dropoff_address'] ?? '').toString();
-    if (pickup.isEmpty) pickup = 'Lagos Pickup Location';
-    if (dropoff.isEmpty) dropoff = pickup;
-
-    final totalPrice = (json['totalPrice'] ?? json['total_price'] ?? json['total_amount'] ?? json['amount'] as num?)?.toDouble() ?? 0.0;
-
-    final statusStr = (json['status'] ?? 'CONFIRMED').toString().toLowerCase();
-    final status = BookingStatus.values.firstWhere(
-      (s) => s.name.toLowerCase() == statusStr,
-      orElse: () => BookingStatus.confirmed,
-    );
-
-    final paymentMethod = (json['paymentMethod'] ?? json['payment_method'] ?? 'Card Payment').toString();
-    final isKeylessUnlocked = json['isKeylessUnlocked'] ?? json['is_keyless_unlocked'] ?? false;
+    final statusName = (json['status'] ?? '').toString().toLowerCase();
 
     return BookingModel(
       id: (json['id'] ?? '').toString(),
-      carId: carId,
-      carName: carName.isNotEmpty ? carName : 'Velix Rental Vehicle',
-      carImage: carImage,
-      userId: userId,
-      userName: userName.isNotEmpty ? userName : 'Velix Customer',
-      partnerId: partnerId,
-      startDate: startDate,
-      endDate: endDate,
-      pickupLocation: pickup,
-      dropoffLocation: dropoff,
-      totalPrice: totalPrice,
-      status: status,
-      paymentMethod: paymentMethod,
-      isKeylessUnlocked: isKeylessUnlocked is bool ? isKeylessUnlocked : false,
+      carId: (json['vehicleId'] ?? '').toString(),
+      carName: '',
+      carImage: '',
+      userId: (json['customerId'] ?? '').toString(),
+      userName: '',
+      partnerId: (json['providerId'] ?? '').toString(),
+      startDate: date(json['pickupAt']),
+      endDate: date(json['dropoffAt']),
+      pickupLocation: '',
+      dropoffLocation: '',
+      totalPrice: money(json['totalAmount']),
+      // An unrecognised status is shown as pending (waiting), never as confirmed.
+      status: BookingStatus.values.firstWhere((s) => s.name == statusName, orElse: () => BookingStatus.pending),
+      paymentMethod: 'Flutterwave',
+      subtotal: money(json['subtotal']),
+      fee: money(json['fee']),
+      tax: money(json['tax']),
+      depositAmount: money(json['depositAmount']),
+      pickupLocationId: json['pickupLocationId']?.toString(),
+      driverId: json['driverId']?.toString(),
+      notes: json['notes']?.toString(),
+      cancellationReason: json['cancellationReason']?.toString(),
     );
+  }
+
+  /// Fills in the display fields that come from the booked vehicle.
+  BookingModel withVehicle(CarModel car) => copyWith(
+        carName: car.name,
+        carImage: car.imageUrl,
+        pickupLocation: car.location,
+        dropoffLocation: car.location,
+      );
+
+  int get days {
+    final hours = endDate.difference(startDate).inHours;
+    return hours <= 0 ? 1 : (hours / 24).ceil();
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'carId': carId,
-      'car_id': carId,
-      'vehicle_id': carId,
-      'carName': carName,
-      'car_name': carName,
-      'carImage': carImage,
-      'car_image': carImage,
-      'userId': userId,
-      'user_id': userId,
-      'customer_id': userId,
-      'userName': userName,
-      'user_name': userName,
-      'customer_name': userName,
-      'partnerId': partnerId,
-      'partner_id': partnerId,
-      'startDate': startDate.toIso8601String(),
-      'start_date': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
-      'end_date': endDate.toIso8601String(),
-      'pickupLocation': pickupLocation,
-      'pickup_location': pickupLocation,
-      'dropoffLocation': dropoffLocation,
-      'dropoff_location': dropoffLocation,
-      'totalPrice': totalPrice,
-      'total_price': totalPrice,
-      'status': status.name,
-      'paymentMethod': paymentMethod,
-      'payment_method': paymentMethod,
-      'isKeylessUnlocked': isKeylessUnlocked,
-      'is_keyless_unlocked': isKeylessUnlocked,
+      'vehicleId': carId,
+      'customerId': userId,
+      'providerId': partnerId,
+      'pickupAt': startDate.toUtc().toIso8601String(),
+      'dropoffAt': endDate.toUtc().toIso8601String(),
+      'pickupLocationId': pickupLocationId,
+      'status': status.name.toUpperCase(),
+      'subtotal': subtotal,
+      'fee': fee,
+      'tax': tax,
+      'totalAmount': totalPrice,
+      'depositAmount': depositAmount,
     };
   }
 
@@ -149,6 +148,14 @@ class BookingModel {
     BookingStatus? status,
     String? paymentMethod,
     bool? isKeylessUnlocked,
+    double? subtotal,
+    double? fee,
+    double? tax,
+    double? depositAmount,
+    String? pickupLocationId,
+    String? driverId,
+    String? notes,
+    String? cancellationReason,
   }) {
     return BookingModel(
       id: id ?? this.id,
@@ -166,6 +173,14 @@ class BookingModel {
       status: status ?? this.status,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       isKeylessUnlocked: isKeylessUnlocked ?? this.isKeylessUnlocked,
+      subtotal: subtotal ?? this.subtotal,
+      fee: fee ?? this.fee,
+      tax: tax ?? this.tax,
+      depositAmount: depositAmount ?? this.depositAmount,
+      pickupLocationId: pickupLocationId ?? this.pickupLocationId,
+      driverId: driverId ?? this.driverId,
+      notes: notes ?? this.notes,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
     );
   }
 }

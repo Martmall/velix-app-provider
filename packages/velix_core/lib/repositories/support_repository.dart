@@ -1,35 +1,33 @@
 import 'dart:async';
-import '../models/support_ticket_model.dart';
+import '../models/chat_model.dart';
 import '../models/dispute_model.dart';
+import '../models/notification_model.dart';
+import '../models/support_ticket_model.dart';
 import '../data_sources/remote/support_remote_data_source.dart';
 
 abstract class ISupportRepository {
   Future<SupportTicketModel> createSupportTicket({
-    required String userId,
     required String subject,
     required String category,
     required String description,
     String? attachmentUrl,
   });
-  Future<List<SupportTicketModel>> getUserTickets(String userId);
+  Future<List<SupportTicketModel>> getMyTickets();
+  Future<List<TicketReply>> getTicketReplies(String ticketId);
+  Future<void> replyToTicket(String ticketId, String message);
+  Future<void> closeTicket(String ticketId);
 
-  Future<DisputeModel> createDispute({
-    required String partnerId,
-    required String bookingId,
-    required String carName,
-    required String reason,
-    required String description,
-    required double claimAmount,
-    List<String> evidenceImages,
-  });
-  Future<List<DisputeModel>> getPartnerDisputes(String partnerId);
-  Future<bool> submitReview({
-    required String bookingId,
-    required String vehicleId,
-    required double rating,
-    required String comment,
-    String? userId,
-  });
+  Future<DisputeModel> createDispute({required String bookingId, required String reason, required String description});
+  Future<List<DisputeModel>> getMyDisputes();
+
+  Future<void> submitReview({required String bookingId, required int rating, String? comment});
+
+  Future<List<NotificationModel>> getNotifications();
+  Future<void> markNotificationRead(String id);
+  Future<void> markAllNotificationsRead(List<NotificationModel> notifications);
+
+  Future<List<ChatMessageModel>> getSupportChat({required String currentUserId});
+  Future<void> sendSupportMessage(String text);
 }
 
 class RemoteSupportRepository implements ISupportRepository {
@@ -37,98 +35,50 @@ class RemoteSupportRepository implements ISupportRepository {
 
   @override
   Future<SupportTicketModel> createSupportTicket({
-    required String userId,
     required String subject,
     required String category,
     required String description,
     String? attachmentUrl,
-  }) async {
-    final ticket = SupportTicketModel(
-      id: 'TCK-${(DateTime.now().millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}',
-      userId: userId,
-      subject: subject,
-      category: category,
-      description: description,
-      status: TicketStatus.inProgress,
-      createdAt: DateTime.now(),
-      attachmentUrl: attachmentUrl,
-    );
-
-    try {
-      final created = await _remote.createTicket(ticket);
-      return created;
-    } catch (_) {
-      return ticket;
-    }
-  }
+  }) =>
+      _remote.createTicket(subject: subject, category: category, description: description, attachmentUrl: attachmentUrl);
 
   @override
-  Future<List<SupportTicketModel>> getUserTickets(String userId) async {
-    try {
-      final list = await _remote.getTickets();
-      return list;
-    } catch (_) {
-      return [];
-    }
-  }
+  Future<List<SupportTicketModel>> getMyTickets() => _remote.getTickets();
 
   @override
-  Future<DisputeModel> createDispute({
-    required String partnerId,
-    required String bookingId,
-    required String carName,
-    required String reason,
-    required String description,
-    required double claimAmount,
-    List<String> evidenceImages = const [],
-  }) async {
-    final dispute = DisputeModel(
-      id: 'DSP-${(DateTime.now().millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}',
-      partnerId: partnerId,
-      bookingId: bookingId,
-      carName: carName,
-      reason: reason,
-      description: description,
-      claimAmount: claimAmount,
-      status: DisputeStatus.pending,
-      createdAt: DateTime.now(),
-      evidenceImages: evidenceImages,
-    );
-
-    try {
-      final created = await _remote.createDispute(dispute);
-      return created;
-    } catch (_) {
-      return dispute;
-    }
-  }
+  Future<List<TicketReply>> getTicketReplies(String ticketId) => _remote.getTicketReplies(ticketId);
 
   @override
-  Future<List<DisputeModel>> getPartnerDisputes(String partnerId) async {
-    try {
-      final list = await _remote.getDisputes();
-      return list;
-    } catch (_) {
-      return [];
-    }
-  }
+  Future<void> replyToTicket(String ticketId, String message) => _remote.replyToTicket(ticketId, message);
 
   @override
-  Future<bool> submitReview({
-    required String bookingId,
-    required String vehicleId,
-    required double rating,
-    required String comment,
-    String? userId,
-  }) async {
-    try {
-      return true;
-    } catch (_) {
-      return true;
-    }
-  }
+  Future<void> closeTicket(String ticketId) => _remote.closeTicket(ticketId);
+
+  @override
+  Future<DisputeModel> createDispute({required String bookingId, required String reason, required String description}) =>
+      _remote.createDispute(bookingId: bookingId, reason: reason, description: description);
+
+  @override
+  Future<List<DisputeModel>> getMyDisputes() => _remote.getDisputes();
+
+  @override
+  Future<void> submitReview({required String bookingId, required int rating, String? comment}) =>
+      _remote.submitReview(bookingId: bookingId, rating: rating, comment: comment);
+
+  @override
+  Future<List<NotificationModel>> getNotifications() => _remote.getNotifications();
+
+  @override
+  Future<void> markNotificationRead(String id) => _remote.markNotificationRead(id);
+
+  @override
+  Future<void> markAllNotificationsRead(List<NotificationModel> notifications) =>
+      _remote.markAllNotificationsRead(notifications.where((n) => !n.isRead).map((n) => n.id));
+
+  @override
+  Future<List<ChatMessageModel>> getSupportChat({required String currentUserId}) =>
+      _remote.getChatMessages(currentUserId: currentUserId);
+
+  @override
+  Future<void> sendSupportMessage(String text) => _remote.sendChatMessage(text);
 }
-
-class MockSupportRepository extends RemoteSupportRepository {}
-
-

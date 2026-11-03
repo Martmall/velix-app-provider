@@ -1,104 +1,85 @@
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/car_model.dart';
 import '../data_sources/remote/vehicle_remote_data_source.dart';
-import '../services/realtime_service.dart';
 
 abstract class IVehicleRepository {
   Future<List<CarModel>> getVehicles({String? category, String? searchQuery, String? location});
   Stream<List<CarModel>> streamVehicles({String? category, String? searchQuery, String? location});
   Future<CarModel?> getVehicleById(String id);
-  Future<void> toggleFavorite(String carId);
+  Future<PriceEstimate> getPriceEstimate(String vehicleId, DateTime start, DateTime end);
+
+  /// Favourites are kept on this device only -- the backend has no favourites API.
+  Future<bool> toggleFavorite(String carId);
   Future<List<CarModel>> getFavorites();
+  Future<Set<String>> getFavoriteIds();
 }
 
 class RemoteVehicleRepository implements IVehicleRepository {
   final VehicleRemoteDataSource _remote = VehicleRemoteDataSource();
-  final VelixRealtimeService _realtime = VelixRealtimeService();
-
-  List<CarModel> _filterVehicles(List<CarModel> list, String? category, String? searchQuery, String? location) {
-    var result = list;
-    if (category != null && category.isNotEmpty && category != 'All') {
-      final cleanCat = category.replaceAll(RegExp(r'[^\w\s]'), '').trim().toLowerCase();
-      result = result.where((c) {
-        final catLower = c.category.toLowerCase();
-        return catLower.contains(cleanCat) || cleanCat.contains(catLower);
-      }).toList();
-    }
-    if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-      final q = searchQuery.toLowerCase().trim();
-      result = result.where((c) => c.name.toLowerCase().contains(q) || c.brand.toLowerCase().contains(q) || c.location.toLowerCase().contains(q)).toList();
-    }
-    if (location != null && location.trim().isNotEmpty && location != 'All Locations') {
-      final loc = location.toLowerCase().trim();
-      result = result.where((c) => c.location.toLowerCase().contains(loc)).toList();
-    }
-    return result;
-  }
+  static const _favoritesKey = 'velix_favorite_vehicle_ids';
+  static const _refreshInterval = Duration(minutes: 1);
 
   @override
   Stream<List<CarModel>> streamVehicles({String? category, String? searchQuery, String? location}) async* {
-    // 1. Initial snapshot from backend API (with sampleCars fallback)
-    try {
-      final initial = await getVehicles(category: category, searchQuery: searchQuery, location: location);
-      yield initial;
-    } catch (_) {
-      yield _filterVehicles(CarModel.sampleCars, category, searchQuery, location);
-    }
-
-    // 2. Real-time stream from Supabase
-    try {
-      final supaStream = _realtime.streamVehicles();
-      await for (final rawList in supaStream) {
-        if (rawList.isNotEmpty) {
-          var mapped = rawList.map((m) => CarModel.fromJson(m)).toList();
-          yield _filterVehicles(mapped, category, searchQuery, location);
-        } else {
-          yield await getVehicles(category: category, searchQuery: searchQuery, location: location);
-        }
-      }
-    } catch (_) {
+    // Fetch now, then refresh periodically so availability changes show up. Errors propagate so
+    // the screen can show them instead of a silently empty list.
+    while (true) {
       yield await getVehicles(category: category, searchQuery: searchQuery, location: location);
+      await Future<void>.delayed(_refreshInterval);
     }
   }
 
   @override
   Future<List<CarModel>> getVehicles({String? category, String? searchQuery, String? location}) async {
-    try {
-      final remoteList = await _remote.getVehicles(
-        category: category,
-        search: searchQuery,
-      );
-      if (remoteList.isNotEmpty) {
-        final existingNames = remoteList.map((c) => c.name.toLowerCase().trim()).toSet();
-        final extraSamples = CarModel.sampleCars.where((s) => !existingNames.contains(s.name.toLowerCase().trim())).toList();
-        final combined = [...remoteList, ...extraSamples];
-        return _filterVehicles(combined, category, searchQuery, location);
-      }
-    } catch (_) {}
-    return _filterVehicles(CarModel.sampleCars, category, searchQuery, location);
+    final cars = await _remote.getVehicles(category: category, search: searchQuery);
+    final favorites = await getFavoriteIds();
+    // City filtering is client-side: /vehicle-list has no location filter.
+    final city = location?.trim().toLowerCase();
+    return cars
+        .where((c) => city == null || city.isEmpty || city == 'all locations' || c.location.toLowerCase().contains(city))
+        .map((c) => favorites.contains(c.id) ? c.copyWith(isFavorite: true) : c)
+        .toList();
   }
 
   @override
   Future<CarModel?> getVehicleById(String id) async {
-    try {
-      return await _remote.getVehicleById(id);
-    } catch (_) {
-      final sample = CarModel.sampleCars.where((c) => c.id == id).toList();
-      return sample.isNotEmpty ? sample.first : CarModel.sampleCars.first;
-    }
+    final car = await _remote.getVehicleById(id);
+    final favorites = await getFavoriteIds();
+    return favorites.contains(car.id) ? car.copyWith(isFavorite: true) : car;
   }
 
   @override
-  Future<void> toggleFavorite(String carId) async {
-    await _remote.toggleFavorite(carId);
+  Future<PriceEstimate> getPriceEstimate(String vehicleId, DateTime start, DateTime end) =>
+      _remote.getPriceEstimate(vehicleId, start, end);
+
+  @override
+  Future<Set<String>> getFavoriteIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (prefs.getStringList(_favoritesKey) ?? const []).toSet();
+  }
+
+  @override
+  Future<bool> toggleFavorite(String carId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final ids = (prefs.getStringList(_favoritesKey) ?? const []).toSet();
+    final nowFavorite = !ids.remove(carId);
+    if (nowFavorite) ids.add(carId);
+    await prefs.setStringList(_favoritesKey, ids.toList());
+    return nowFavorite;
   }
 
   @override
   Future<List<CarModel>> getFavorites() async {
-    try {
-      final favs = await _remote.getFavorites();
-      if (favs.isNotEmpty) return favs;
-    } catch (_) {}
-    return [CarModel.sampleCars[0], CarModel.sampleCars[2]];
+    final ids = await getFavoriteIds();
+    final cars = <CarModel>[];
+    for (final id in ids) {
+      try {
+        cars.add((await _remote.getVehicleById(id)).copyWith(isFavorite: true));
+      } catch (_) {
+        // The listing was removed or is no longer public; drop it from the list.
+      }
+    }
+    return cars;
   }
 }

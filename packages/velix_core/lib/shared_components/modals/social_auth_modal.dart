@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
 import '../../data_sources/remote/auth_remote_data_source.dart';
+import '../../network/api_client.dart';
 
 class SocialAuthModal {
   static Future<UserModel?> show({
@@ -82,26 +83,12 @@ class SocialAuthModal {
       final authSource = AuthRemoteDataSource();
       final role = isPartner ? UserRole.partner : UserRole.user;
 
-      UserModel? user;
-      try {
-        if (isGoogle) {
-          user = await authSource.signInWithGoogle(role: role);
-        } else {
-          user = await authSource.oauthLogin(
-            provider: 'apple',
-            name: 'Apple User',
-            email: 'apple.user@velix.ng',
-            role: role,
-          );
-        }
-      } catch (_) {
-        user = await authSource.oauthLogin(
-          provider: isGoogle ? 'google' : 'apple',
-          name: isGoogle ? 'Google Explorer' : 'Apple Explorer',
-          email: isGoogle ? 'google.user@velix.ng' : 'apple.user@velix.ng',
-          role: role,
-        );
+      // Only Google is configured (via Supabase OAuth). A failure is surfaced to the caller --
+      // never replaced with a placeholder account.
+      if (!isGoogle) {
+        throw ApiException('Apple sign-in isn\'t available yet. Please use Google or email.');
       }
+      final user = await authSource.signInWithGoogle(role: role);
 
       if (context.mounted) {
         Navigator.of(context, rootNavigator: true).pop(); // Close dialog
