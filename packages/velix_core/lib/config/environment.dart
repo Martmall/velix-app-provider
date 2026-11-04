@@ -18,7 +18,7 @@ class AppConfig {
       _envName == 'development' ? VelixEnvironment.development : VelixEnvironment.production;
 
   /// Default production backend, used only when no API_BASE_URL is passed at build time.
-  static const String liveHost = 'https://velix-backend-a4jx.onrender.com';
+  static const String liveHost = 'https://api.velix.ng';
   static const String localHost = 'http://localhost:8000';
   static const String androidLocalHost = 'http://10.0.2.2:8000';
 
