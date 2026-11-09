@@ -50,29 +50,23 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
         final rawPhone = _phoneController.text.trim();
         final formattedPhone = rawPhone.startsWith('+') ? rawPhone : '${_selectedCountry.dialCode} $rawPhone';
 
-        final success = await ref.read(partnerAuthProvider.notifier).register(
+        final result = await ref.read(partnerAuthProvider.notifier).register(
           fullName: _nameController.text.trim(),
           email: _emailController.text.trim(),
           phone: formattedPhone,
           password: _passwordController.text,
         );
 
-        if (success && mounted) {
-          setState(() => _isLoading = false);
-          VelixToast.showSuccess(
-            context,
-            'Partner account created for ${_nameController.text.trim()}!',
-            title: 'Registration Successful',
-          );
-          context.go(AppRoutes.otpVerification, extra: formattedPhone);
-        } else if (mounted) {
-          setState(() => _isLoading = false);
-          final errorMsg = ref.read(partnerAuthProvider).error;
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        if (result != null) {
+          VelixToast.showSuccess(context, result.message, title: 'Check your email');
+          // No session yet: the account becomes usable once the emailed code is confirmed.
+          context.go(AppRoutes.otpVerification, extra: result.email);
+        } else {
           VelixToast.showError(
             context,
-            errorMsg != null && errorMsg.isNotEmpty
-                ? errorMsg.replaceAll('Exception:', '').trim()
-                : 'Partner registration failed. Please check your details.',
+            ref.read(partnerAuthProvider).error ?? 'Partner registration failed. Please check your details.',
             title: 'Registration Failed',
           );
         }
@@ -91,19 +85,20 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   }
 
   Future<void> _socialSignUp(String provider) async {
-    final user = await SocialAuthModal.show(
-      context: context,
-      provider: provider,
-      isPartner: !_isCustomerRole,
-    );
-
-    if (user != null && mounted) {
-      VelixToast.showSuccess(
-        context,
-        'Welcome, ${user.fullName}! Connected with $provider.',
-        title: 'Account Connected',
+    try {
+      final user = await SocialAuthModal.show(
+        context: context,
+        provider: provider,
+        isPartner: !_isCustomerRole,
       );
-      context.go(AppRoutes.partnerSetUp);
+      if (user != null && mounted) {
+        // A Google account is already email-verified, so there is no code to confirm.
+        ref.read(partnerAuthProvider.notifier).updateUser(user);
+        VelixToast.showSuccess(context, 'Welcome, ${user.fullName}!', title: 'Account Connected');
+        context.go(AppRoutes.partnerSetUp);
+      }
+    } catch (e) {
+      if (mounted) VelixToast.showError(context, ApiClient.parseErrorMessage(e));
     }
   }
 

@@ -62,15 +62,14 @@ class _PartnerSignInScreenState extends ConsumerState<PartnerSignInScreen> {
           context.go(AppRoutes.partnerHome);
         } else if (mounted) {
           setState(() => _isLoading = false);
-          final errStr = ref.read(partnerAuthProvider).error;
-          final msg = (errStr != null && errStr.isNotEmpty)
-              ? errStr.replaceAll('Exception:', '').trim()
-              : 'Invalid partner email or password.';
-          VelixToast.showError(
-            context,
-            msg,
-            title: 'Sign In Failed',
-          );
+          final msg = ref.read(partnerAuthProvider).error ?? 'Invalid partner email or password.';
+          VelixToast.showError(context, msg, title: 'Sign In Failed');
+          // Registered but never confirmed the emailed code: send a fresh one and go confirm it.
+          if (msg.toLowerCase().contains('verify your email')) {
+            final email = _emailController.text.trim();
+            await ref.read(partnerAuthProvider.notifier).resendVerificationEmail(email);
+            if (mounted) context.go(AppRoutes.otpVerification, extra: email);
+          }
         }
       } catch (e) {
         if (mounted) {
@@ -87,32 +86,18 @@ class _PartnerSignInScreenState extends ConsumerState<PartnerSignInScreen> {
   }
 
   Future<void> _socialLogin(String provider) async {
-    if (provider.toLowerCase() == 'google') {
-      setState(() => _isLoading = true);
-      try {
-        final authSource = AuthRemoteDataSource();
-        final partner = await authSource.signInWithGoogle(role: UserRole.partner);
-        if (mounted) {
-          setState(() => _isLoading = false);
-          VelixToast.showSuccess(
-            context,
-            'Signed in with Google as Partner ${partner.fullName}!',
-            title: 'Partner Authenticated',
-          );
-          context.go(AppRoutes.partnerHome);
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() => _isLoading = false);
-          VelixToast.showError(
-            context,
-            'Partner Google sign in: ${e.toString().replaceAll('Exception:', '').trim()}',
-            title: 'Sign In Failed',
-          );
-        }
-      }
+    if (provider.toLowerCase() != 'google') {
+      VelixToast.showInfo(context, 'Apple sign-in isn\'t available yet. Please use Google or email.');
+      return;
+    }
+    setState(() => _isLoading = true);
+    final ok = await ref.read(partnerAuthProvider.notifier).signInWithGoogle();
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (ok) {
+      context.go(AppRoutes.partnerHome);
     } else {
-      context.go(AppRoutes.createAccount);
+      VelixToast.showError(context, ref.read(partnerAuthProvider).error ?? 'Google sign-in failed.', title: 'Sign In Failed');
     }
   }
 
@@ -146,26 +131,15 @@ class _PartnerSignInScreenState extends ConsumerState<PartnerSignInScreen> {
 
     if (!success || !mounted) return;
 
-    try {
-      final authSource = AuthRemoteDataSource();
-      final partner = await authSource.login(
-        email: enrolledEmail,
-        password: 'password123',
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Biometric Verified! Logged in as ${partner.fullName} ($enrolledEmail).'),
-            backgroundColor: const Color(0xFF0C1830),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        context.go(AppRoutes.partnerHome);
-      }
-    } catch (_) {
-      if (mounted) {
-        context.go(AppRoutes.partnerHome);
-      }
+    // Biometrics only unlock a session already stored on this device; they never stand in for
+    // the password. No stored (or a revoked) session means a normal sign-in is needed.
+    await ref.read(partnerAuthProvider.notifier).refreshUser();
+    if (!mounted) return;
+    final partner = ref.read(partnerAuthProvider).user;
+    if (partner != null && partner.email.toLowerCase() == enrolledEmail.toLowerCase()) {
+      context.go(AppRoutes.partnerHome);
+    } else {
+      VelixToast.showInfo(context, 'Your session has expired. Please sign in with your password.');
     }
   }
 

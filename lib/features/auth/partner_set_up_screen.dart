@@ -15,11 +15,11 @@ class PartnerSetUpScreen extends ConsumerStatefulWidget {
 class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _businessNameController;
-  late TextEditingController _taxIdController;
 
-  bool _isDocUploaded = false;
-  String? _uploadedDocUrl;
-  String? _uploadedDocName;
+  // Picked locally; uploaded on submit (POST /provider/documents).
+  UploadFile? _document;
+  bool get _isDocUploaded => _document != null;
+  String? get _uploadedDocName => _document?.name;
   bool _isLoading = false;
 
   @override
@@ -27,18 +27,11 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
     super.initState();
     final auth = ref.read(partnerAuthProvider);
     _businessNameController = TextEditingController(text: auth.user?.businessName ?? '');
-    _taxIdController = TextEditingController(text: auth.user?.cacNumber ?? '');
-    if (auth.user?.cacDocumentUrl != null && auth.user!.cacDocumentUrl!.isNotEmpty) {
-      _isDocUploaded = true;
-      _uploadedDocUrl = auth.user!.cacDocumentUrl;
-      _uploadedDocName = _uploadedDocUrl!.split('/').last.split('?').first;
-    }
   }
 
   @override
   void dispose() {
     _businessNameController.dispose();
-    _taxIdController.dispose();
     super.dispose();
   }
 
@@ -50,47 +43,30 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
       category: 'cac',
     );
     if (result != null && mounted) {
-      final fileName = result.split('/').last.split('?').first;
-      setState(() {
-        _isDocUploaded = true;
-        _uploadedDocUrl = result;
-        _uploadedDocName = fileName.isNotEmpty ? fileName : 'CAC_Certificate.pdf';
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('CAC Document ($fileName) attached & uploaded!'),
-          backgroundColor: const Color(0xFF0C1830),
-        ),
-      );
+      setState(() => _document = result);
+      VelixToast.showInfo(context, '${result.name} attached. It uploads when you submit.');
     }
   }
 
-  void _submitKYC() {
-    if (_formKey.currentState!.validate()) {
-      if (!_isDocUploaded) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please attach your business registration document (PDF/Image).')),
-        );
-        return;
-      }
-      setState(() => _isLoading = true);
-      Future.delayed(const Duration(milliseconds: 600), () {
-        if (mounted) {
-          setState(() => _isLoading = false);
-          final bName = _businessNameController.text.trim();
-          final taxId = _taxIdController.text.trim();
-          final docUrl = _uploadedDocUrl ?? 'CAC_Certificate_${DateTime.now().millisecondsSinceEpoch}.pdf';
-
-          ref.read(partnerAuthProvider.notifier).updateBusinessDetails(
-            businessName: bName,
-            cacNumber: taxId,
-            cacDocumentUrl: docUrl,
-          );
-
-          _showUnderReviewDialog();
-        }
-      });
+  Future<void> _submitKYC() async {
+    if (!_formKey.currentState!.validate()) return;
+    final document = _document;
+    if (document == null) {
+      VelixToast.showInfo(context, 'Please attach your business registration document (PDF/Image).');
+      return;
     }
+    setState(() => _isLoading = true);
+    final status = await ref.read(partnerAuthProvider.notifier).submitBusinessDocuments(
+          [document],
+          businessName: _businessNameController.text.trim(),
+        );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (status == null) {
+      VelixToast.showError(context, ref.read(partnerAuthProvider).error ?? 'Upload failed. Please try again.');
+      return;
+    }
+    _showUnderReviewDialog();
   }
 
   void _showUnderReviewDialog() {
@@ -314,15 +290,6 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                         style: TextStyle(fontSize: 14, color: textColor),
                         decoration: _buildInputDecoration('e.g. Adebayo Luxury Motors Ltd', inputBg, borderColor, subtextColor),
                         validator: (value) => value == null || value.trim().isEmpty ? 'Please enter registered business name' : null,
-                      ),
-                      const SizedBox(height: 18),
-                      Text('CAC / Tax ID Number', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textColor)),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _taxIdController,
-                        style: TextStyle(fontSize: 14, color: textColor),
-                        decoration: _buildInputDecoration('e.g. CAC-RC-881920', inputBg, borderColor, subtextColor),
-                        validator: (value) => value == null || value.trim().isEmpty ? 'Please enter CAC or Tax ID' : null,
                       ),
                       const SizedBox(height: 18),
                       Text('CAC / Registration Document', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textColor)),

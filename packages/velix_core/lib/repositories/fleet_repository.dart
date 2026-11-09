@@ -1,62 +1,44 @@
 import 'dart:async';
 import '../models/car_model.dart';
+import '../network/upload_file.dart';
 import '../data_sources/remote/vehicle_remote_data_source.dart';
-import '../services/realtime_service.dart';
 
+/// A partner's own listings. Every call is scoped server-side to the signed-in partner.
 abstract class IFleetRepository {
-  Future<List<CarModel>> getPartnerVehicles(String partnerId);
-  Stream<List<CarModel>> streamPartnerVehicles(String partnerId);
-  Future<CarModel> addVehicle(CarModel car);
+  Future<List<CarModel>> getPartnerVehicles();
+  Stream<List<CarModel>> streamPartnerVehicles();
+  Future<CarModel> addVehicle(VehicleDraft draft, {List<UploadFile> photos = const []});
+  Future<CarModel> uploadPhotos(String vehicleId, List<UploadFile> photos);
+  /// 'AVAILABLE' | 'UNAVAILABLE' | 'MAINTENANCE' | 'INACTIVE'
+  Future<void> setVehicleStatus(String vehicleId, String status);
   Future<void> removeVehicle(String vehicleId);
 }
 
 class RemoteFleetRepository implements IFleetRepository {
   final VehicleRemoteDataSource _remote = VehicleRemoteDataSource();
-  final VelixRealtimeService _realtime = VelixRealtimeService();
+  static const _refreshInterval = Duration(minutes: 1);
 
   @override
-  Stream<List<CarModel>> streamPartnerVehicles(String partnerId) async* {
-    yield await getPartnerVehicles(partnerId);
-
-    try {
-      final supaStream = _realtime.streamVehicles();
-      await for (final rawList in supaStream) {
-        if (rawList.isNotEmpty) {
-          final mapped = rawList
-              .map((m) => CarModel.fromJson(m))
-              .where((c) => c.partnerId == partnerId || partnerId.isEmpty)
-              .toList();
-          yield mapped.isNotEmpty ? mapped : await getPartnerVehicles(partnerId);
-        } else {
-          yield await getPartnerVehicles(partnerId);
-        }
-      }
-    } catch (_) {
-      yield await getPartnerVehicles(partnerId);
+  Stream<List<CarModel>> streamPartnerVehicles() async* {
+    while (true) {
+      yield await getPartnerVehicles();
+      await Future<void>.delayed(_refreshInterval);
     }
   }
 
   @override
-  Future<List<CarModel>> getPartnerVehicles(String partnerId) async {
-    try {
-      final cars = await _remote.getPartnerVehicles();
-      return cars.where((c) => c.partnerId == partnerId || partnerId.isEmpty).toList();
-    } catch (_) {
-      return [];
-    }
-  }
+  Future<List<CarModel>> getPartnerVehicles() => _remote.getPartnerVehicles();
 
   @override
-  Future<CarModel> addVehicle(CarModel car) async {
-    return await _remote.addVehicle(car);
-  }
+  Future<CarModel> addVehicle(VehicleDraft draft, {List<UploadFile> photos = const []}) =>
+      _remote.addVehicle(draft, photos: photos);
 
   @override
-  Future<void> removeVehicle(String vehicleId) async {
-    // Soft remove or call backend
-  }
+  Future<CarModel> uploadPhotos(String vehicleId, List<UploadFile> photos) => _remote.uploadPhotos(vehicleId, photos);
+
+  @override
+  Future<void> setVehicleStatus(String vehicleId, String status) => _remote.updateStatus(vehicleId, status);
+
+  @override
+  Future<void> removeVehicle(String vehicleId) => _remote.removeVehicle(vehicleId);
 }
-
-class MockFleetRepository extends RemoteFleetRepository {}
-
-

@@ -4,92 +4,100 @@ import '../../models/user_model.dart';
 import '../../network/api_client.dart';
 import '../../storage/secure_storage_service.dart';
 
+/// Result of POST /register. The backend issues no tokens until the 6-digit code emailed to
+/// [email] is confirmed via [AuthRemoteDataSource.verifyRegistrationOtp].
+class RegistrationResult {
+  final String email;
+  final bool requiresVerification;
+  final String message;
+  RegistrationResult({required this.email, required this.requiresVerification, required this.message});
+}
+
 class AuthRemoteDataSource {
   final ApiClient _apiClient = ApiClient();
   final SecureStorageService _storage = SecureStorageService();
 
-  Future<UserModel> login({required String email, required String password}) async {
-    try {
-      final response = await _apiClient.post('/login', data: {
-        'email': email,
-        'password': password,
-      });
-      final data = response.data['data'] ?? response.data;
-      final accessToken = data['api_token'] ?? data['accessToken'] ?? data['token'];
-      final refreshToken = data['refresh_token'] ?? data['refreshToken'];
-
-      if (accessToken != null) {
-        await _storage.saveToken(accessToken);
-        if (refreshToken != null) {
-          await _storage.saveRefreshToken(refreshToken);
-        }
-      }
-      return UserModel.fromJson(data['user'] ?? data);
-    } catch (err) {
-      debugPrint('[AuthRemoteDataSource] Remote login error: $err. Activating fallback session.');
-      final fallbackToken = 'velix_token_${DateTime.now().millisecondsSinceEpoch}';
-      await _storage.saveToken(fallbackToken);
-      return UserModel(
-        id: 'usr_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}',
-        fullName: email.split('@').first.toUpperCase(),
-        email: email,
-        phone: '+234 800 000 0000',
-        role: UserRole.user,
-        walletBalance: 25000.0,
-        isVerified: true,
-      );
+  /// Stores the session from an auth response (`data` holds the user plus api_token /
+  /// refresh_token) and returns the user. Throws if the response carries no token.
+  Future<UserModel> _storeSession(dynamic body) async {
+    final data = ApiClient.objectFrom(body);
+    final accessToken = data['api_token'] ?? data['accessToken'];
+    if (accessToken is! String || accessToken.isEmpty) {
+      throw ApiException('Sign-in did not return a session. Please try again.');
     }
+    await _storage.saveToken(accessToken);
+    final refreshToken = data['refresh_token'] ?? data['refreshToken'];
+    if (refreshToken is String && refreshToken.isNotEmpty) {
+      await _storage.saveRefreshToken(refreshToken);
+    }
+    return UserModel.fromJson(data);
   }
 
-  Future<UserModel> register({
+  Future<UserModel> login({required String email, required String password}) async {
+    final response = await _apiClient.post('/login', data: {
+      'email': email.trim(),
+      'password': password,
+    });
+    return _storeSession(response.data);
+  }
+
+  Future<RegistrationResult> register({
     required String fullName,
     required String email,
     required String phone,
     required String password,
     required UserRole role,
   }) async {
-    final parts = fullName.trim().split(' ');
-    final firstName = parts.first;
-    final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
-
-    try {
-      final response = await _apiClient.post('/register', data: {
-        'fullName': fullName,
-        'username': email.split('@').first,
-        'first_name': firstName,
-        'last_name': lastName,
-        'email': email,
-        'contact_number': phone,
-        'password': password,
-        'user_type': role == UserRole.partner ? 'provider' : 'user',
-      });
-      final data = response.data['data'] ?? response.data;
-      final accessToken = data['api_token'] ?? data['accessToken'] ?? data['token'];
-      final refreshToken = data['refresh_token'] ?? data['refreshToken'];
-
-      if (accessToken != null) {
-        await _storage.saveToken(accessToken);
-        if (refreshToken != null) {
-          await _storage.saveRefreshToken(refreshToken);
-        }
-      }
-      return UserModel.fromJson(data['user'] ?? data);
-    } catch (err) {
-      debugPrint('[AuthRemoteDataSource] Remote register error: $err. Creating registered session.');
-      final fallbackToken = 'velix_token_${DateTime.now().millisecondsSinceEpoch}';
-      await _storage.saveToken(fallbackToken);
-      return UserModel(
-        id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-        fullName: fullName,
-        email: email,
-        phone: phone,
-        role: role,
-        walletBalance: 50000.0,
-        isVerified: true,
-      );
-    }
+    final parts = fullName.trim().split(RegExp(r'\s+'));
+    final response = await _apiClient.post('/register', data: {
+      'first_name': parts.first,
+      if (parts.length > 1) 'last_name': parts.sublist(1).join(' '),
+      'email': email.trim(),
+      if (phone.trim().isNotEmpty) 'contact_number': phone.trim(),
+      'password': password,
+      'user_type': role == UserRole.partner ? 'provider' : 'user',
+    });
+    final body = response.data is Map ? response.data as Map : const {};
+    final data = body['data'] is Map ? body['data'] as Map : const {};
+    return RegistrationResult(
+      email: (data['email'] ?? email).toString(),
+      requiresVerification: data['requires_verification'] != false,
+      message: (body['message'] ?? 'A verification code has been sent to your email.').toString(),
+    );
   }
 
+  /// Confirms the code emailed after registration and starts the session.
+  Future<UserModel> verifyRegistrationOtp({required String email, required String code}) async {
+    final response = await _apiClient.post('/verify-registration-otp', data: {
+      'email': email.trim(),
+      'code': code.trim(),
+    });
+    return _storeSession(response.data);
+  }
+
+  Future<void> resendVerificationEmail({required String email}) async {
+    await _apiClient.post('/resend-verification-email', data: {'email': email.trim()});
+  }
+
+  /// Passwordless sign-in, step 1: emails a one-time code.
+  Future<void> requestLoginOtp({required String email}) async {
+    await _apiClient.post('/request-login-otp', data: {'email': email.trim()});
+  }
+
+  /// Passwordless sign-in, step 2.
+  Future<UserModel> verifyLoginOtp({required String email, required String code}) async {
+    final response = await _apiClient.post('/verify-login-otp', data: {
+      'email': email.trim(),
+      'code': code.trim(),
+    });
+    return _storeSession(response.data);
+  }
+
+  Future<void> forgotPassword({required String email}) async {
+    await _apiClient.post('/forgot-password', data: {'email': email.trim()});
+  }
+
+  /// Exchanges a Supabase OAuth session for a Velix session.
   Future<UserModel> oauthLogin({
     required String provider,
     required String name,
@@ -98,271 +106,86 @@ class AuthRemoteDataSource {
     String? supabaseAccessToken,
     UserRole role = UserRole.user,
   }) async {
-    final parts = name.trim().split(' ');
-    final firstName = parts.first;
-    final lastName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
-
-    try {
-      final response = await _apiClient.post('/social-login', data: {
-        'login_type': provider.toLowerCase(),
-        'name': name,
-        'first_name': firstName,
-        'last_name': lastName,
-        'email': email,
-        'avatarUrl': avatarUrl,
-        'social_image': avatarUrl,
-        'user_type': role == UserRole.partner ? 'provider' : 'user',
-        if (supabaseAccessToken != null && supabaseAccessToken.isNotEmpty)
-          'supabase_access_token': supabaseAccessToken,
-      });
-      final data = response.data['data'] ?? response.data;
-      final accessToken = data['api_token'] ?? data['accessToken'] ?? data['token'];
-      final refreshToken = data['refresh_token'] ?? data['refreshToken'];
-      if (accessToken != null) {
-        await _storage.saveToken(accessToken);
-        if (refreshToken != null) {
-          await _storage.saveRefreshToken(refreshToken);
-        }
-      }
-      return UserModel.fromJson(data['user'] ?? data);
-    } catch (err) {
-      debugPrint('[AuthRemoteDataSource] Remote social login error: $err. Fallback social session.');
-      final fallbackToken = 'velix_token_${DateTime.now().millisecondsSinceEpoch}';
-      await _storage.saveToken(fallbackToken);
-      return UserModel(
-        id: 'usr_${provider}_${DateTime.now().millisecondsSinceEpoch}',
-        fullName: name,
-        email: email,
-        phone: '+234 800 000 0000',
-        role: role,
-        avatarUrl: avatarUrl,
-        walletBalance: 25000.0,
-        isVerified: true,
-      );
-    }
+    final parts = name.trim().split(RegExp(r'\s+'));
+    final response = await _apiClient.post('/social-login', data: {
+      'login_type': provider.toLowerCase(),
+      'email': email,
+      'first_name': parts.first,
+      if (parts.length > 1) 'last_name': parts.sublist(1).join(' '),
+      if (avatarUrl != null) 'social_image': avatarUrl,
+      'user_type': role == UserRole.partner ? 'provider' : 'user',
+      if (supabaseAccessToken != null && supabaseAccessToken.isNotEmpty)
+        'supabase_access_token': supabaseAccessToken,
+    });
+    return _storeSession(response.data);
   }
 
+  /// Google sign-in via Supabase OAuth. On mobile this opens the browser and returns false-y
+  /// until the deep link (io.supabase.velix://login-callback/) brings a session back; call it
+  /// again (or listen to Supabase auth state) once that session exists.
   Future<UserModel> signInWithGoogle({UserRole role = UserRole.user}) async {
-    try {
-      final supa = Supabase.instance.client;
-      final session = supa.auth.currentSession;
-      if (session != null) {
-        final meta = session.user.userMetadata ?? {};
-        final email = session.user.email ?? '';
-        final name = meta['full_name'] ?? meta['name'] ?? email.split('@').first;
-        final avatar = meta['avatar_url'] ?? meta['picture'];
-
-        return await oauthLogin(
-          provider: 'google',
-          name: name.toString(),
-          email: email,
-          avatarUrl: avatar?.toString(),
-          supabaseAccessToken: session.accessToken,
-          role: role,
-        );
-      }
-
-      final authRes = await supa.auth.signInWithOAuth(
+    final supa = Supabase.instance.client;
+    var session = supa.auth.currentSession;
+    if (session == null) {
+      final launched = await supa.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: kIsWeb ? null : 'io.supabase.velix://login-callback/',
       );
-      if (!authRes) {
-        throw Exception('Google sign-in was cancelled or failed.');
-      }
-
-      // Check for session post redirect
-      final postSession = supa.auth.currentSession;
-      if (postSession != null) {
-        final meta = postSession.user.userMetadata ?? {};
-        final email = postSession.user.email ?? '';
-        final name = meta['full_name'] ?? meta['name'] ?? email.split('@').first;
-        final avatar = meta['avatar_url'] ?? meta['picture'];
-
-        return await oauthLogin(
-          provider: 'google',
-          name: name.toString(),
-          email: email,
-          avatarUrl: avatar?.toString(),
-          supabaseAccessToken: postSession.accessToken,
-          role: role,
-        );
-      }
-
-      // Fallback for Web/Direct Social Auth
-      return await oauthLogin(
-        provider: 'google',
-        name: 'Google User',
-        email: 'user@gmail.com',
-        role: role,
-      );
-    } catch (e) {
-      throw Exception(ApiClient.parseErrorMessage(e));
-    }
-  }
-
-  Future<bool> sendOtp({required String phone}) async {
-    try {
-      final response = await _apiClient.post('/request-login-otp', data: {'phone': phone, 'contact_number': phone});
-      final data = response.data['data'] ?? response.data;
-      return data['success'] == true || response.statusCode == 200;
-    } catch (_) {
-      try {
-        final response = await _apiClient.post('/send-otp', data: {'phone': phone});
-        final data = response.data['data'] ?? response.data;
-        return data['success'] == true || response.statusCode == 200;
-      } catch (err) {
-        throw Exception(ApiClient.parseErrorMessage(err));
+      if (!launched) throw ApiException('Google sign-in was cancelled.');
+      session = supa.auth.currentSession;
+      if (session == null) {
+        throw ApiException('Finish signing in with Google in your browser, then try again.');
       }
     }
+    final meta = session.user.userMetadata ?? {};
+    final email = session.user.email ?? '';
+    return oauthLogin(
+      provider: 'google',
+      name: (meta['full_name'] ?? meta['name'] ?? email.split('@').first).toString(),
+      email: email,
+      avatarUrl: (meta['avatar_url'] ?? meta['picture'])?.toString(),
+      supabaseAccessToken: session.accessToken,
+      role: role,
+    );
   }
 
-  Future<bool> verifyOtp({required String code, String? phone}) async {
-    try {
-      final response = await _apiClient.post('/verify-registration-otp', data: {
-        'otp': code,
-        'code': code,
-        if (phone != null) 'phone': phone,
-      });
-      final data = response.data['data'] ?? response.data;
-      return data['success'] == true || response.statusCode == 200;
-    } catch (_) {
-      try {
-        final response = await _apiClient.post('/verify-otp', data: {'otp': code, 'code': code});
-        final data = response.data['data'] ?? response.data;
-        return data['success'] == true || response.statusCode == 200;
-      } catch (err) {
-        throw Exception(ApiClient.parseErrorMessage(err));
-      }
-    }
-  }
-
-  Future<UserModel> completeKyc({
-    required String licenseNumber,
-    String? frontIdUrl,
-    String? backIdUrl,
-    String? selfieUrl,
-  }) async {
-    final response = await _apiClient.post('/kyc-upload', data: {
-      'license_number': licenseNumber,
-      'front_id_url': frontIdUrl,
-      'back_id_url': backIdUrl,
-      'selfie_url': selfieUrl,
-    });
-    final data = response.data['data'] ?? response.data;
-    return UserModel.fromJson(data['user'] ?? data);
-  }
-
+  /// The signed-in user, or null when there is no valid session.
   Future<UserModel?> getCurrentUser() async {
+    final token = await _storage.getToken();
+    if (token == null || token.isEmpty) return null;
     try {
       final response = await _apiClient.get('/user');
-      final data = response.data['data'] ?? response.data;
-      if (data != null) {
-        return UserModel.fromJson(data);
-      }
-    } catch (_) {
-      try {
-        final response = await _apiClient.get('/auth/me');
-        if (response.data['data'] != null) {
-          return UserModel.fromJson(response.data['data']);
-        }
-      } catch (_) {}
+      return UserModel.fromJson(ApiClient.objectFrom(response.data));
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) return null;
+      rethrow;
     }
-    return null;
   }
 
   Future<UserModel> updateProfile({
     String? fullName,
     String? phone,
     String? avatarUrl,
-    String? licenseNumber,
-    String? bankName,
-    String? bankAccount,
-    String? cacNumber,
-    String? businessName,
   }) async {
-    try {
-      final response = await _apiClient.put('/auth/profile', data: {
-        if (fullName != null) 'fullName': fullName,
-        if (phone != null) 'phone': phone,
-        if (avatarUrl != null) 'avatarUrl': avatarUrl,
-        if (licenseNumber != null) 'licenseNumber': licenseNumber,
-        if (bankName != null) 'bankName': bankName,
-        if (bankAccount != null) 'bankAccount': bankAccount,
-        if (cacNumber != null) 'cacNumber': cacNumber,
-        if (businessName != null) 'businessName': businessName,
-      });
-      final data = response.data['data'] ?? response.data;
-      return UserModel.fromJson(data['user'] ?? data);
-    } catch (_) {
-      final response = await _apiClient.post('/user-update', data: {
-        if (fullName != null) 'first_name': fullName,
-        if (phone != null) 'contact_number': phone,
-        if (avatarUrl != null) 'avatar_url': avatarUrl,
-        if (licenseNumber != null) 'license_number': licenseNumber,
-      });
-      final data = response.data['data'] ?? response.data;
-      return UserModel.fromJson(data['user'] ?? data);
-    }
-  }
-
-  Future<UserModel> topUpWallet({required double amount, String? userId}) async {
-    try {
-      final response = await _apiClient.post('/wallet/topup', data: {
-        'amount': amount,
-        if (userId != null) 'userId': userId,
-      });
-      final data = response.data['data'] ?? response.data;
-      final newBalance = (data['walletBalance'] as num?)?.toDouble() ?? amount;
-      final currentUser = await getCurrentUser();
-      if (currentUser != null) {
-        return currentUser.copyWith(walletBalance: newBalance);
-      }
-    } catch (_) {}
-    final current = (await getCurrentUser());
-    return current?.copyWith(walletBalance: (current.walletBalance) + amount) ??
-        UserModel(
-          id: userId ?? 'usr_${DateTime.now().millisecondsSinceEpoch}',
-          fullName: 'Velix User',
-          email: 'user@velix.ng',
-          phone: '+234 800 000 0000',
-          role: UserRole.user,
-          walletBalance: amount,
-          isVerified: false,
-        );
-  }
-
-  Future<UserModel> deductWallet({required double amount, String? userId, String? bookingId}) async {
-    try {
-      final response = await _apiClient.post('/wallet/deduct', data: {
-        'amount': amount,
-        if (userId != null) 'userId': userId,
-        if (bookingId != null) 'bookingId': bookingId,
-      });
-      final data = response.data['data'] ?? response.data;
-      final newBalance = (data['walletBalance'] as num?)?.toDouble() ?? 0.0;
-      final currentUser = await getCurrentUser();
-      if (currentUser != null) {
-        return currentUser.copyWith(walletBalance: newBalance);
-      }
-    } catch (_) {}
-    final current = (await getCurrentUser());
-    final rem = current != null ? (current.walletBalance - amount) : 0.0;
-    return current?.copyWith(walletBalance: rem < 0 ? 0.0 : rem) ??
-        UserModel(
-          id: userId ?? 'usr_${DateTime.now().millisecondsSinceEpoch}',
-          fullName: 'Velix User',
-          email: 'user@velix.ng',
-          phone: '+234 800 000 0000',
-          role: UserRole.user,
-          walletBalance: 0.0,
-          isVerified: false,
-        );
+    final parts = fullName?.trim().split(RegExp(r'\s+'));
+    await _apiClient.post('/update-profile', data: {
+      if (parts != null && parts.first.isNotEmpty) 'firstName': parts.first,
+      if (parts != null && parts.length > 1) 'lastName': parts.sublist(1).join(' '),
+      if (phone != null && phone.trim().isNotEmpty) 'phone': phone.trim(),
+      if (avatarUrl != null && avatarUrl.startsWith('http')) 'avatarUrl': avatarUrl,
+    });
+    // /update-profile's response shape is minimal; re-read the canonical profile.
+    final user = await getCurrentUser();
+    if (user == null) throw ApiException('Your session has expired. Please sign in again.');
+    return user;
   }
 
   Future<void> logout() async {
     try {
       await _apiClient.post('/logout');
-    } catch (_) {}
+    } on ApiException catch (e) {
+      debugPrint('[AuthRemoteDataSource] logout call failed (session cleared anyway): $e');
+    }
     await _storage.clearAll();
   }
 }

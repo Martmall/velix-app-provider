@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# velix_core test/analyze output
+/packages/velix_core/build/

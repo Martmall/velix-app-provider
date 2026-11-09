@@ -18,6 +18,6 @@ class SupabaseConfig {
   // API Gateway URL
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://velix-backend-a4jx.onrender.com/api',
+    defaultValue: 'https://api.velix.ng/api',
   );
 }

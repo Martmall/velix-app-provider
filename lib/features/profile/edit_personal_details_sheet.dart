@@ -46,36 +46,24 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
   }
 
   Future<void> _pickAvatar() async {
-    final photo = await ImagePickerModal.show(
-      context: context,
-      title: 'Update Profile Photo',
-      category: 'avatar',
-    );
-    if (photo != null && mounted) {
-      setState(() => _avatarUrl = photo);
-    }
+    // The backend stores an avatar URL but has no endpoint to upload the image itself yet.
+    VelixToast.showInfo(context, 'Profile photos are coming soon.');
   }
 
-  void _saveProfile() {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isSaving = true);
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        ref.read(partnerAuthProvider.notifier).updatePersonalDetails(
+  Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isSaving = true);
+    final ok = await ref.read(partnerAuthProvider.notifier).updatePersonalDetails(
           fullName: _nameController.text.trim(),
-          email: _emailController.text.trim(),
           phone: _phoneController.text.trim(),
-          avatarUrl: _avatarUrl,
         );
-
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Personal profile details updated successfully!'),
-            backgroundColor: Color(0xFF0C1830),
-          ),
-        );
-      });
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+    if (ok) {
+      Navigator.pop(context);
+      VelixToast.showSuccess(context, 'Personal details updated.');
+    } else {
+      VelixToast.showError(context, ref.read(partnerAuthProvider).error ?? 'Could not save your details.');
     }
   }
 
@@ -191,6 +179,8 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _emailController,
+                  // Changing the email needs re-verification, which this sheet doesn't do.
+                  readOnly: true,
                   keyboardType: TextInputType.emailAddress,
                   style: TextStyle(color: titleColor, fontSize: 14),
                   decoration: InputDecoration(

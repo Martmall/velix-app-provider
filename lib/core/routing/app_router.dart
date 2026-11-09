@@ -37,7 +37,7 @@ final GoRouter partnerAppRouter = GoRouter(
     GoRoute(
       path: AppRoutes.otpVerification,
       builder: (context, state) => PartnerOtpVerificationScreen(
-        phoneNumber: state.extra as String?,
+        email: state.extra is String ? state.extra as String : null,
       ),
     ),
     GoRoute(path: AppRoutes.partnerSetUp, builder: (context, state) => const PartnerSetUpScreen()),

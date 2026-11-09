@@ -14,10 +14,15 @@ class EarningsScreen extends ConsumerStatefulWidget {
 }
 
 class _EarningsScreenState extends ConsumerState<EarningsScreen> {
-  final List<WalletTransactionModel> _localWithdrawals = [];
 
   void _showWithdrawalModal() {
     final auth = ref.read(partnerAuthProvider);
+    // Withdrawals are paid to the saved payout account; the API refuses without one.
+    if (auth.user?.accountNumber?.isNotEmpty != true) {
+      VelixToast.showInfo(context, 'Add your payout bank account first.');
+      BankAccountSheet.show(context);
+      return;
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
@@ -25,11 +30,11 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
     final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
     final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9);
 
-    final amountController = TextEditingController(text: '50000');
+    final amountController = TextEditingController();
     bool isSubmitting = false;
 
-    final bankName = auth.user?.bankName?.isNotEmpty == true ? auth.user!.bankName! : 'Providus Bank Nigeria';
-    final accountNumber = auth.user?.accountNumber?.isNotEmpty == true ? auth.user!.accountNumber! : '0123456789';
+    final bankName = auth.user!.bankName ?? '';
+    final accountNumber = auth.user!.accountNumber!;
 
     showModalBottomSheet(
       context: context,
@@ -145,37 +150,26 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                     text: 'Submit Withdrawal Request',
                     isLoading: isSubmitting,
                     onPressed: () async {
-                      final reqAmount = amountController.text.trim().isNotEmpty ? amountController.text.trim() : '50000';
-                      final parsedAmount = double.tryParse(reqAmount) ?? 50000.0;
+                      final parsedAmount = double.tryParse(amountController.text.replaceAll(',', '').trim());
+                      if (parsedAmount == null || parsedAmount <= 0) {
+                        VelixToast.showInfo(context, 'Enter the amount to withdraw.');
+                        return;
+                      }
                       setModalState(() => isSubmitting = true);
+                      final ok = await ref.read(partnerAuthProvider.notifier).requestPayout(amount: parsedAmount);
+                      if (!ctx.mounted) return;
                       Navigator.pop(ctx);
-
-                      await ref.read(partnerAuthProvider.notifier).requestPayout(
-                        amount: parsedAmount,
-                        bankName: bankName,
-                        accountNumber: accountNumber,
-                      );
-
-                      if (mounted) {
-                        setState(() {
-                          _localWithdrawals.insert(
-                            0,
-                            WalletTransactionModel(
-                              id: 'tx_req_${DateTime.now().millisecondsSinceEpoch}',
-                              title: 'Payout Request ($bankName)',
-                              amount: parsedAmount,
-                              isCredit: false,
-                              timestamp: DateTime.now(),
-                              reference: 'VLX-PAY-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-                              status: 'Pending Admin Approval',
-                            ),
-                          );
-                        });
+                      if (!mounted) return;
+                      if (ok) {
+                        ref.invalidate(partnerWalletProvider);
+                        ref.invalidate(partnerBalanceProvider);
                         VelixToast.showSuccess(
                           this.context,
-                          'Withdrawal request of ₦${parsedAmount.toStringAsFixed(0)} submitted! Admin will process within 24 hours.',
+                          'Withdrawal of ₦${parsedAmount.toStringAsFixed(0)} requested. It is paid out once an admin approves it.',
                           title: 'Request Submitted',
                         );
+                      } else {
+                        VelixToast.showError(this.context, ref.read(partnerAuthProvider).error ?? 'Withdrawal request failed.');
                       }
                     },
                   ),
@@ -197,17 +191,13 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
     final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
     final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
 
-    final bookingsAsync = ref.watch(partnerBookingsProvider);
     final walletAsync = ref.watch(partnerWalletProvider);
 
-    final bookings = bookingsAsync.valueOrNull ?? [];
-    final transactions = [..._localWithdrawals, ...(walletAsync.valueOrNull ?? [])];
+    final transactions = walletAsync.valueOrNull ?? <WalletTransactionModel>[];
 
-    final calculatedEarnings = bookings
-        .where((b) => b.status == BookingStatus.completed || b.status == BookingStatus.active)
-        .fold<double>(0.0, (sum, b) => sum + (b.totalPrice * 0.85));
-
-    final totalEarnings = calculatedEarnings > 0 ? calculatedEarnings : 125000.0;
+    // Withdrawable balance from the server: the partner's share of each paid booking is
+    // credited to their wallet; pending withdrawals are already deducted.
+    final totalEarnings = ref.watch(partnerBalanceProvider).valueOrNull?.balance ?? 0.0;
 
     return Scaffold(
       backgroundColor: scaffoldBg,

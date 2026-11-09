@@ -1,24 +1,29 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:velix_core/velix_core.dart';
 import '../../core/routing/routes.dart';
+import '../../providers/partner_app_providers.dart';
 
-class PartnerOtpVerificationScreen extends StatefulWidget {
-  final String? phoneNumber;
-  const PartnerOtpVerificationScreen({super.key, this.phoneNumber});
+/// Confirms the 6-digit code the backend emails after registration. Confirming it is what
+/// creates the first session (register itself returns no tokens).
+class PartnerOtpVerificationScreen extends ConsumerStatefulWidget {
+  final String? email;
+  const PartnerOtpVerificationScreen({super.key, this.email});
 
   @override
-  State<PartnerOtpVerificationScreen> createState() => _PartnerOtpVerificationScreenState();
+  ConsumerState<PartnerOtpVerificationScreen> createState() => _PartnerOtpVerificationScreenState();
 }
 
-class _PartnerOtpVerificationScreenState extends State<PartnerOtpVerificationScreen> {
+class _PartnerOtpVerificationScreenState extends ConsumerState<PartnerOtpVerificationScreen> {
   String _otp = '';
   bool _isLoading = false;
   int _countdown = 59;
   Timer? _timer;
 
   bool get _canResend => _countdown == 0;
+  String get _email => widget.email?.trim() ?? '';
 
   @override
   void initState() {
@@ -45,57 +50,37 @@ class _PartnerOtpVerificationScreenState extends State<PartnerOtpVerificationScr
     super.dispose();
   }
 
-  String get _displayPhone {
-    final raw = widget.phoneNumber?.trim();
-    if (raw != null && raw.isNotEmpty) {
-      return raw;
-    }
-    return '+234 903 542 7435';
-  }
-
   Future<void> _resendCode() async {
-    if (!_canResend) return;
+    if (!_canResend || _email.isEmpty) return;
     _startTimer();
-    try {
-      await AuthRemoteDataSource().sendOtp(phone: _displayPhone);
-      if (mounted) {
-        VelixToast.showSuccess(context, 'A new 6-digit verification code has been dispatched to $_displayPhone');
-      }
-    } catch (_) {
-      if (mounted) {
-        VelixToast.showSuccess(context, 'A new verification code has been dispatched to $_displayPhone');
-      }
+    final notifier = ref.read(partnerAuthProvider.notifier);
+    final ok = await notifier.resendVerificationEmail(_email);
+    if (!mounted) return;
+    if (ok) {
+      VelixToast.showSuccess(context, 'A new code has been sent to $_email');
+    } else {
+      VelixToast.showError(context, ref.read(partnerAuthProvider).error ?? 'Could not resend the code.');
     }
   }
 
   Future<void> _verifyCode() async {
-    if (_otp.length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the full 6-digit verification code')),
-      );
+    if (_email.isEmpty) {
+      VelixToast.showError(context, 'Please create your account again to get a new code.');
+      return;
+    }
+    if (_otp.length < 6) {
+      VelixToast.showInfo(context, 'Please enter the full 6-digit code.');
       return;
     }
     setState(() => _isLoading = true);
-    try {
-      final success = await AuthRemoteDataSource().verifyOtp(code: _otp, phone: _displayPhone);
-      if (mounted) {
-        setState(() => _isLoading = false);
-        if (success) {
-          VelixToast.showSuccess(context, 'Partner account verified successfully!');
-          context.go(AppRoutes.partnerSetUp);
-        } else {
-          VelixToast.showError(context, 'Invalid verification code. Please try again.');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final message = e.toString().replaceAll('Exception:', '').trim();
-        VelixToast.showError(
-          context,
-          message.isNotEmpty ? message : 'OTP verification failed. Please try again.',
-        );
-      }
+    final ok = await ref.read(partnerAuthProvider.notifier).verifyRegistration(_email, _otp);
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (ok) {
+      VelixToast.showSuccess(context, 'Email verified. Welcome to Velix!');
+      context.go(AppRoutes.partnerSetUp);
+    } else {
+      VelixToast.showError(context, ref.read(partnerAuthProvider).error ?? 'Invalid code. Please try again.');
     }
   }
 
@@ -171,7 +156,7 @@ class _PartnerOtpVerificationScreenState extends State<PartnerOtpVerificationScr
                   style: TextStyle(fontSize: 14, color: subtextColor, height: 1.4),
                   children: [
                     TextSpan(
-                      text: _displayPhone,
+                      text: _email.isNotEmpty ? _email : 'your email',
                       style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
                     ),
                     const TextSpan(text: '. Enter it below to access your host portal.'),

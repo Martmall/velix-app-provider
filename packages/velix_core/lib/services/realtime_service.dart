@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 
+/// Initialises the Supabase client (used for Google OAuth). Booking/vehicle/notification data
+/// does NOT come from Supabase tables: it lives in the backend's own Postgres and is read through
+/// the REST API, so the old Supabase Realtime table streams were removed.
 class VelixRealtimeService {
   static final VelixRealtimeService _instance = VelixRealtimeService._internal();
   factory VelixRealtimeService() => _instance;
@@ -37,140 +40,6 @@ class VelixRealtimeService {
       debugPrint('[VelixRealtimeService] Supabase Realtime initialized successfully.');
     } catch (e) {
       debugPrint('[VelixRealtimeService] Supabase initialize warning/error: $e');
-    }
-  }
-
-  /// Real-time stream of booking status updates for a specific customer
-  Stream<List<Map<String, dynamic>>> streamCustomerBookings(String customerId) {
-    final supa = client;
-    if (supa == null) return const Stream.empty();
-
-    try {
-      return supa
-          .from('bookings')
-          .stream(primaryKey: ['id'])
-          .eq('customer_user_id', customerId)
-          .handleError((err) {
-            debugPrint('[VelixRealtimeService] streamCustomerBookings suppressed error: $err');
-          });
-    } catch (e) {
-      debugPrint('[VelixRealtimeService] streamCustomerBookings exception: $e');
-      return const Stream.empty();
-    }
-  }
-
-  /// Real-time stream of incoming and active bookings for a fleet partner
-  Stream<List<Map<String, dynamic>>> streamPartnerBookings(String partnerId) {
-    final supa = client;
-    if (supa == null) return const Stream.empty();
-
-    try {
-      return supa
-          .from('bookings')
-          .stream(primaryKey: ['id'])
-          .eq('vendor_id', partnerId)
-          .handleError((err) {
-            debugPrint('[VelixRealtimeService] streamPartnerBookings suppressed error: $err');
-          });
-    } catch (e) {
-      debugPrint('[VelixRealtimeService] streamPartnerBookings exception: $e');
-      return const Stream.empty();
-    }
-  }
-
-  /// Real-time stream for a single specific booking
-  Stream<List<Map<String, dynamic>>> streamSingleBooking(String bookingId) {
-    final supa = client;
-    if (supa == null) return const Stream.empty();
-
-    try {
-      return supa
-          .from('bookings')
-          .stream(primaryKey: ['id'])
-          .eq('id', bookingId)
-          .handleError((err) {
-            debugPrint('[VelixRealtimeService] streamSingleBooking suppressed error: $err');
-          });
-    } catch (e) {
-      debugPrint('[VelixRealtimeService] streamSingleBooking exception: $e');
-      return const Stream.empty();
-    }
-  }
-
-  /// Real-time stream of live vehicles / fleet updates
-  Stream<List<Map<String, dynamic>>> streamVehicles() {
-    final supa = client;
-    if (supa == null) return const Stream.empty();
-
-    try {
-      return supa
-          .from('vehicles')
-          .stream(primaryKey: ['id'])
-          .handleError((err) {
-            debugPrint('[VelixRealtimeService] streamVehicles suppressed error: $err');
-          });
-    } catch (e) {
-      debugPrint('[VelixRealtimeService] streamVehicles exception: $e');
-      return const Stream.empty();
-    }
-  }
-
-  /// Real-time stream of user notifications
-  Stream<List<Map<String, dynamic>>> streamNotifications(String userId) {
-    final supa = client;
-    if (supa == null) return const Stream.empty();
-
-    try {
-      return supa
-          .from('notifications')
-          .stream(primaryKey: ['id'])
-          .eq('user_id', userId)
-          .handleError((err) {
-            debugPrint('[VelixRealtimeService] streamNotifications suppressed error: $err');
-          });
-    } catch (e) {
-      debugPrint('[VelixRealtimeService] streamNotifications exception: $e');
-      return const Stream.empty();
-    }
-  }
-
-  /// Real-time stream of chat/support messages
-  Stream<List<Map<String, dynamic>>> streamChatMessages(String bookingId) {
-    final supa = client;
-    if (supa == null) return const Stream.empty();
-
-    try {
-      return supa
-          .from('chat_messages')
-          .stream(primaryKey: ['id'])
-          .eq('booking_id', bookingId)
-          .handleError((err) {
-            debugPrint('[VelixRealtimeService] streamChatMessages suppressed error: $err');
-          });
-    } catch (e) {
-      debugPrint('[VelixRealtimeService] streamChatMessages exception: $e');
-      return const Stream.empty();
-    }
-  }
-
-  /// Real-time stream of disputes for partners and users
-  Stream<List<Map<String, dynamic>>> streamDisputes({String? partnerId, String? userId}) {
-    final supa = client;
-    if (supa == null) return const Stream.empty();
-
-    try {
-      var query = supa.from('disputes').stream(primaryKey: ['id']);
-      if (partnerId != null && partnerId.isNotEmpty) {
-        query = query.eq('partner_id', partnerId);
-      } else if (userId != null && userId.isNotEmpty) {
-        query = query.eq('user_id', userId);
-      }
-      return query.handleError((err) {
-        debugPrint('[VelixRealtimeService] streamDisputes suppressed error: $err');
-      });
-    } catch (e) {
-      debugPrint('[VelixRealtimeService] streamDisputes exception: $e');
-      return const Stream.empty();
     }
   }
 }

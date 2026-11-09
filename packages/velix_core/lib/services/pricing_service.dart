@@ -1,85 +1,61 @@
+/// Mirror of the backend's calculateBookingPricing() (backend/src/modules/bookings/
+/// booking.service.ts). The server recomputes and charges its own figures when the booking is
+/// created; this exists only so the summary screen can show the exact same numbers beforehand.
+/// Keep the constants in sync with that file.
 class PricingBreakdown {
   final double baseRatePerDay;
   final int days;
   final double subtotal;
-  final double mandatoryInsurancePerDay;
-  final double mandatoryInsuranceTotal;
-  final double optionalAddOnsTotal;
-  final double addOnsTotal;
   final double serviceFee;
-  final double discountAmount;
+  final double vat;
   final double grandTotal;
+  final double securityDeposit;
 
   PricingBreakdown({
     required this.baseRatePerDay,
     required this.days,
     required this.subtotal,
-    this.mandatoryInsurancePerDay = 5000.0,
-    double? mandatoryInsuranceTotal,
-    double? optionalAddOnsTotal,
-    required this.addOnsTotal,
     required this.serviceFee,
-    required this.discountAmount,
+    required this.vat,
     required this.grandTotal,
-  })  : mandatoryInsuranceTotal = mandatoryInsuranceTotal ?? (5000.0 * days),
-        optionalAddOnsTotal = optionalAddOnsTotal ?? (addOnsTotal - (mandatoryInsuranceTotal ?? (5000.0 * days))).clamp(0.0, double.infinity);
+    required this.securityDeposit,
+  });
 
   double get baseRental => subtotal;
-  double get chauffeurTotal => optionalAddOnsTotal;
-  double get childSeatTotal => 0.0;
-  double get vat => serviceFee;
-  double get discount => discountAmount;
-  double get securityDeposit => 50000.0;
+
+  // The backend has no paid add-ons or promo codes; these stay 0 so nothing un-chargeable is shown.
+  double get chauffeurTotal => 0;
+  double get childSeatTotal => 0;
+  double get discount => 0;
 }
 
 class PricingService {
+  static const double serviceFeeRate = 0.10; // SERVICE_FEE_RATE
+  static const double vatRate = 0.075; // VAT_RATE, applied to (subtotal + fee)
+  static const double depositRate = 0.20; // DEPOSIT_RATE, a refundable hold on top of the total
+
+  static double _round2(double value) => (value * 100).roundToDouble() / 100;
+
   static PricingBreakdown calculatePrice({
     required double baseRatePerDay,
     required DateTime pickupDate,
     required DateTime returnDate,
-    List<double> selectedAddOnPrices = const [],
-    double mandatoryInsurancePerDay = 5000.0,
-    String? promoCode,
   }) {
-    int days = returnDate.difference(pickupDate).inDays;
-    if (days <= 0) days = 1;
-
-    final double subtotal = baseRatePerDay * days;
-    final double mandatoryInsuranceTotal = mandatoryInsurancePerDay * days;
-
-    double optionalDailyTotal = 0;
-    for (var price in selectedAddOnPrices) {
-      optionalDailyTotal += price;
-    }
-    final double optionalAddOnsTotal = optionalDailyTotal * days;
-    final double addOnsTotal = mandatoryInsuranceTotal + optionalAddOnsTotal;
-    final double serviceFee = (subtotal + addOnsTotal) * 0.05;
-
-    double discountAmount = 0;
-    if (promoCode != null) {
-      final code = promoCode.trim().toUpperCase();
-      if (code == 'VELO5K') {
-        discountAmount = 5000;
-      } else if (code == 'VELIX10') {
-        discountAmount = (subtotal + addOnsTotal) * 0.10;
-      }
-    }
-
-    final double totalBeforeDiscount = subtotal + addOnsTotal + serviceFee;
-    final double grandTotal = (totalBeforeDiscount - discountAmount).clamp(0.0, double.infinity);
-
+    // Any part of a day counts as a full day, minimum 1 -- same as the server.
+    final hours = returnDate.difference(pickupDate).inMilliseconds / 86400000;
+    final days = hours <= 0 ? 1 : hours.ceil();
+    final subtotal = _round2(days * baseRatePerDay);
+    final fee = _round2(subtotal * serviceFeeRate);
+    final vat = _round2((subtotal + fee) * vatRate);
+    final total = _round2(subtotal + fee + vat);
     return PricingBreakdown(
       baseRatePerDay: baseRatePerDay,
       days: days,
       subtotal: subtotal,
-      mandatoryInsurancePerDay: mandatoryInsurancePerDay,
-      mandatoryInsuranceTotal: mandatoryInsuranceTotal,
-      optionalAddOnsTotal: optionalAddOnsTotal,
-      addOnsTotal: addOnsTotal,
-      serviceFee: serviceFee,
-      discountAmount: discountAmount,
-      grandTotal: grandTotal,
+      serviceFee: fee,
+      vat: vat,
+      grandTotal: total,
+      securityDeposit: _round2(total * depositRate),
     );
   }
 }
-

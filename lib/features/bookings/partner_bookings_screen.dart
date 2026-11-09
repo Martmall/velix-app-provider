@@ -185,6 +185,21 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
     );
   }
 
+  Future<void> _respond(BookingModel item, {required bool accept}) async {
+    final repo = ref.read(bookingRepoProvider);
+    try {
+      if (accept) {
+        await repo.confirmBooking(item.id);
+      } else {
+        await repo.rejectBooking(item.id, reason: 'Declined by partner');
+      }
+      ref.invalidate(partnerBookingsProvider);
+      if (mounted) VelixToast.showSuccess(context, accept ? 'Booking accepted.' : 'Booking declined.');
+    } catch (e) {
+      if (mounted) VelixToast.showError(context, ApiClient.parseErrorMessage(e));
+    }
+  }
+
   Widget _buildBookingCard(BookingModel item, bool isDark, Color cardBg, Color textColor, Color subtextColor, Color borderColor) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -293,39 +308,68 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          // Action Triggers Row
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.go(AppRoutes.verifyPickup1),
-                  icon: const Icon(Icons.qr_code_scanner, size: 16, color: Colors.white),
-                  label: const Text('Verify Pickup', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC84C00),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+          // Actions follow the booking lifecycle: accept/decline a request, hand the car over,
+          // then take it back.
+          if (item.status == BookingStatus.pending)
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _respond(item, accept: true),
+                    icon: const Icon(Icons.check, size: 16, color: Colors.white),
+                    label: const Text('Accept', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 3,
-                child: OutlinedButton.icon(
-                  onPressed: () => context.go(AppRoutes.verifyReturn1),
-                  icon: Icon(Icons.task_alt, size: 16, color: textColor),
-                  label: Text('Verify Return', style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: borderColor),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _respond(item, accept: false),
+                    icon: const Icon(Icons.close, size: 16, color: Color(0xFFEF4444)),
+                    label: const Text('Decline', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFEF4444)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                   ),
                 ),
+              ],
+            )
+          else if (item.status == BookingStatus.confirmed)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => context.go(AppRoutes.verifyPickup2, extra: item),
+                icon: const Icon(Icons.qr_code_scanner, size: 16, color: Colors.white),
+                label: const Text('Verify Pickup', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFC84C00),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
               ),
-            ],
-          ),
+            )
+          else if (item.status == BookingStatus.active)
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => context.go(AppRoutes.verifyReturn2, extra: item),
+                icon: Icon(Icons.task_alt, size: 16, color: textColor),
+                label: Text('Verify Return', style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: borderColor),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
           const SizedBox(height: 8),
           Center(
             child: TextButton.icon(

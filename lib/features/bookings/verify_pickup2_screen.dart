@@ -19,12 +19,6 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
   bool _isLoading = false;
 
   @override
-  void initState() {
-    super.initState();
-    _pinControllers[0].text = '1';
-  }
-
-  @override
   void dispose() {
     for (final c in _pinControllers) {
       c.dispose();
@@ -32,22 +26,32 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
     super.dispose();
   }
 
-  void _verifyCode(BookingModel? currentBooking) async {
-    setState(() => _isLoading = true);
-    if (currentBooking != null) {
-      await ref.read(bookingRepoProvider).updateBookingStatus(currentBooking.id, BookingStatus.active);
-      ref.invalidate(partnerBookingsProvider);
+  /// Handover handshake: the customer reads out the booking reference shown in their app
+  /// ("BK-" + last 6 characters of the booking id). Matching it confirms the person collecting
+  /// the car holds *this* booking; the server then moves it CONFIRMED -> ACTIVE.
+  Future<void> _verifyCode(BookingModel? currentBooking) async {
+    if (currentBooking == null) {
+      VelixToast.showInfo(context, 'There is no confirmed booking awaiting pickup.');
+      return;
     }
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (mounted) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Pickup verified successfully for ${currentBooking?.userName ?? "Customer"}! Rental is now active.'),
-          backgroundColor: const Color(0xFF10B981),
-        ),
-      );
+    final entered = _pinControllers.map((c) => c.text.trim()).join().toUpperCase();
+    final id = currentBooking.id.toUpperCase();
+    final expected = id.length > 6 ? id.substring(id.length - 6) : id;
+    if (entered != expected) {
+      VelixToast.showError(context, 'That reference doesn\'t match this booking. Ask the customer to check "Booking Reference" in their app.');
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(bookingRepoProvider).startRental(currentBooking.id);
+      ref.invalidate(partnerBookingsProvider);
+      if (!mounted) return;
+      VelixToast.showSuccess(context, 'Pickup confirmed. The rental is now active.');
       context.go(AppRoutes.partnerTripUpdates);
+    } catch (e) {
+      if (mounted) VelixToast.showError(context, ApiClient.parseErrorMessage(e));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -62,12 +66,12 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
     final innerBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6);
 
     final allBookings = ref.watch(partnerBookingsProvider).value ?? [];
-    final booking = widget.booking ?? allBookings.where((b) => b.status == BookingStatus.confirmed || b.status == BookingStatus.pending).firstOrNull;
+    final booking = widget.booking ?? allBookings.where((b) => b.status == BookingStatus.confirmed).firstOrNull;
 
     final customerName = booking?.userName.isNotEmpty == true ? booking!.userName : 'Customer';
     final vehicleName = booking?.carName.isNotEmpty == true ? booking!.carName : 'Selected Vehicle';
-    final refCode = booking?.id ?? 'VR-LIVE-001';
-    final location = booking?.pickupLocation.isNotEmpty == true ? booking!.pickupLocation : 'Victoria Island Hub, Lagos';
+    final refCode = booking?.id ?? '';
+    final location = booking?.pickupLocation ?? '';
     final carImg = booking?.carImage.isNotEmpty == true ? booking!.carImage : CarImageCatalog.toyotaCamry;
 
     return Scaffold(
@@ -210,12 +214,12 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Enter Customer OTP',
+                    'Enter Booking Reference',
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textColor),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Ask $customerName for the 6-digit pickup verification code displayed in their Velix app.',
+                    'Ask $customerName for the 6 characters after "BK-" under Booking Reference in their Velix app.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12, color: subtextColor, height: 1.4),
                   ),
@@ -231,7 +235,8 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
                         child: TextFormField(
                           controller: _pinControllers[index],
                           textAlign: TextAlign.center,
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
+                          textCapitalization: TextCapitalization.characters,
                           maxLength: 1,
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
                           decoration: InputDecoration(

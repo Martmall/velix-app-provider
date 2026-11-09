@@ -10,6 +10,7 @@ export 'theme/app_theme.dart';
 export 'localization/app_localization.dart';
 export 'storage/secure_storage_service.dart';
 export 'network/api_client.dart';
+export 'network/upload_file.dart';
 
 // Models
 export 'models/user_model.dart';
@@ -23,7 +24,6 @@ export 'models/dispute_model.dart';
 
 // Services
 export 'services/pricing_service.dart';
-export 'services/file_upload_service.dart';
 export 'services/realtime_service.dart';
 
 // Data Sources & Repositories
@@ -32,6 +32,7 @@ export 'data_sources/remote/vehicle_remote_data_source.dart';
 export 'data_sources/remote/booking_remote_data_source.dart';
 export 'data_sources/remote/payment_remote_data_source.dart';
 export 'data_sources/remote/support_remote_data_source.dart';
+export 'data_sources/remote/verification_remote_data_source.dart';
 export 'repositories/auth_repository.dart';
 export 'repositories/vehicle_repository.dart';
 export 'repositories/booking_repository.dart';
@@ -58,3 +59,4 @@ export 'shared_components/modals/social_auth_modal.dart';
 export 'shared_components/modals/image_picker_modal.dart';
 export 'shared_components/modals/auth_gate_modal.dart';
 export 'shared_components/modals/legal_terms_modal.dart';
+export 'shared_components/payments/flutterwave_checkout_screen.dart';

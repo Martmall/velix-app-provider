@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,8 +24,18 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
   late TextEditingController _plateController;
   late TextEditingController _descController;
   late TextEditingController _videoUrlController;
+  late TextEditingController _yearController;
 
   String _selectedCategory = 'SUV';
+  // The backend's VehicleCategory values, with the labels the web app uses.
+  static const _categories = {
+    'SEDAN': 'Sedan',
+    'SUV': 'SUV',
+    'HATCHBACK': 'Hatchback',
+    'LUXURY': 'Luxury',
+    'VAN_MINIBUS': 'Van / Minibus',
+    'PICKUP_TRUCK': 'Pickup truck',
+  };
   String _selectedTransmission = 'Automatic';
   String _selectedFuel = 'Gasoline';
   final int _selectedSeats = 5;
@@ -32,7 +43,17 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
   bool _isAvailable = true;
   bool _isLoading = false;
 
+  // Photos already on the listing (URLs) plus newly picked ones, uploaded after the save.
   final List<String> _photos = [];
+  final List<UploadFile> _newPhotos = [];
+  int get _photoCount => _photos.length + _newPhotos.length;
+
+  ImageProvider _photoAt(int index) {
+    if (index < _photos.length) return NetworkImage(_photos[index]);
+    final file = _newPhotos[index - _photos.length];
+    if (file.bytes != null) return MemoryImage(file.bytes!);
+    return FileImage(File(file.path!));
+  }
   final List<DateTime> _blockedDates = [];
 
   final Map<String, bool> _features = {
@@ -55,13 +76,14 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
       _plateController = TextEditingController(text: c.licensePlate ?? '');
       _descController = TextEditingController(text: c.location);
       _videoUrlController = TextEditingController(text: c.videoUrl ?? '');
-      _selectedCategory = c.category;
+      _selectedCategory = _categories.containsKey(c.category) ? c.category : 'SEDAN';
+      _yearController = TextEditingController(text: c.year?.toString() ?? '');
       _selectedTransmission = c.transmission;
       _selectedFuel = c.fuelType;
       _isAvailable = c.isAvailable;
       _photos.clear();
-      _photos.add(c.imageUrl);
-      _photos.addAll(c.galleryImages.where((img) => img != c.imageUrl));
+      // Only real listing photos -- not the stock placeholder CarModel shows when there are none.
+      _photos.addAll(c.galleryImages.where((img) => img.contains('/storage') || img.contains('supabase')));
       for (final f in c.features) {
         _features[f] = true;
       }
@@ -76,6 +98,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
       _plateController = TextEditingController();
       _descController = TextEditingController();
       _videoUrlController = TextEditingController();
+      _yearController = TextEditingController();
     }
   }
 
@@ -87,6 +110,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
     _plateController.dispose();
     _descController.dispose();
     _videoUrlController.dispose();
+    _yearController.dispose();
     super.dispose();
   }
 
@@ -109,15 +133,11 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
     );
 
     if (selectedPhoto != null && mounted) {
-      setState(() {
-        _photos.add(selectedPhoto);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vehicle photo captured and added!'),
-          backgroundColor: Color(0xFF0C1830),
-        ),
-      );
+      if (_photoCount >= 10) {
+        VelixToast.showInfo(context, 'A listing can have up to 10 photos.');
+        return;
+      }
+      setState(() => _newPhotos.add(selectedPhoto));
     }
   }
 
@@ -165,86 +185,69 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
     }
   }
 
-  void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      if (_photos.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please capture or select at least 1 real vehicle photo.'),
-            backgroundColor: Color(0xFFDC2626),
-          ),
-        );
-        return;
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_photoCount == 0) {
+      VelixToast.showError(context, 'Please capture or select at least 1 real vehicle photo.');
+      return;
+    }
+    final price = double.tryParse(_priceController.text.replaceAll(',', '').trim());
+    final year = int.tryParse(_yearController.text.trim());
+    if (price == null || price <= 0) {
+      VelixToast.showError(context, 'Please enter a daily price.');
+      return;
+    }
+    if (year == null || year < 1990 || year > DateTime.now().year + 1) {
+      VelixToast.showError(context, 'Please enter the vehicle\'s model year.');
+      return;
+    }
+
+    final make = _brandController.text.trim();
+    final title = _nameController.text.trim();
+    // "Toyota Land Cruiser Prado" with make "Toyota" -> model "Land Cruiser Prado".
+    final model = title.toLowerCase().startsWith(make.toLowerCase()) && title.length > make.length
+        ? title.substring(make.length).trim()
+        : title;
+    final area = _selectedLocation.split(',');
+    final details = _descController.text.trim();
+
+    final draft = VehicleDraft(
+      id: widget.initialCar?.id,
+      title: title,
+      make: make,
+      model: model,
+      year: year,
+      dailyRate: price,
+      category: _selectedCategory,
+      seats: _selectedSeats,
+      transmission: _selectedTransmission,
+      fuelType: _selectedFuel == 'Gasoline' ? 'petrol' : _selectedFuel,
+      plateNumber: _plateController.text.trim(),
+      description: details,
+      address: area.first.trim(),
+      city: area.length > 1 ? area.last.trim() : null,
+      features: _features.entries.where((e) => e.value).map((e) => e.key).toList(),
+    );
+
+    setState(() => _isLoading = true);
+    try {
+      final fleet = ref.read(fleetRepoProvider);
+      await fleet.addVehicle(draft, photos: _newPhotos);
+      if (widget.initialCar != null && !_isAvailable) {
+        await fleet.setVehicleStatus(widget.initialCar!.id, 'UNAVAILABLE');
       }
-
-      setState(() => _isLoading = true);
-
-      final price = double.tryParse(_priceController.text) ?? 50000.0;
-      final selectedFeats = _features.entries.where((e) => e.value).map((e) => e.key).toList();
-      final carName = _nameController.text.trim();
-      final authState = ref.read(partnerAuthProvider);
-      final partnerId = authState.user?.id ?? 'host_${DateTime.now().millisecondsSinceEpoch}';
-      final partnerName = authState.user?.fullName.isNotEmpty == true ? authState.user!.fullName : 'Host Partner';
-      final videoUrl = _videoUrlController.text.trim().isNotEmpty ? _videoUrlController.text.trim() : null;
-      final unavailableDateStrings = _blockedDates.map((d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}').toList();
-
-      if (widget.initialCar != null) {
-        final updatedCar = widget.initialCar!.copyWith(
-          name: carName,
-          brand: _brandController.text.trim(),
-          category: _selectedCategory,
-          pricePerDay: price,
-          transmission: _selectedTransmission,
-          fuelType: _selectedFuel,
-          imageUrl: _photos.first,
-          galleryImages: _photos,
-          features: selectedFeats,
-          location: '$_selectedLocation - ${_descController.text.trim()}',
-          videoUrl: videoUrl,
-          isAvailable: _isAvailable,
-          unavailableDates: unavailableDateStrings,
-        );
-        await ref.read(fleetRepoProvider).addVehicle(updatedCar);
-      } else {
-        final newCar = CarModel(
-          id: 'car_${DateTime.now().millisecondsSinceEpoch}',
-          name: carName,
-          brand: _brandController.text.trim(),
-          category: _selectedCategory,
-          pricePerDay: price,
-          rating: 5.0,
-          reviewsCount: 0,
-          imageUrl: _photos.first,
-          galleryImages: _photos,
-          transmission: _selectedTransmission,
-          fuelType: _selectedFuel,
-          seats: _selectedSeats,
-          partnerId: partnerId,
-          partnerName: partnerName,
-          partnerAvatar: authState.user?.avatarUrl ?? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-          isFavorite: false,
-          isAvailable: _isAvailable,
-          location: '$_selectedLocation - ${_descController.text.trim()}',
-          features: selectedFeats,
-          videoUrl: videoUrl,
-          unavailableDates: unavailableDateStrings,
-        );
-        await ref.read(fleetRepoProvider).addVehicle(newCar);
-      }
-
       ref.invalidate(partnerFleetProvider);
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-        VelixToast.showSuccess(
-          context,
-          widget.initialCar != null
-              ? 'Vehicle updated successfully!'
-              : 'New vehicle published to fleet successfully!',
-          title: widget.initialCar != null ? 'Vehicle Updated' : 'Vehicle Published',
-        );
-        context.go(AppRoutes.myVehicles);
-      }
+      if (!mounted) return;
+      VelixToast.showSuccess(
+        context,
+        widget.initialCar != null ? 'Vehicle updated.' : 'Vehicle submitted. It goes live once an admin approves it.',
+        title: widget.initialCar != null ? 'Vehicle Updated' : 'Vehicle Submitted',
+      );
+      context.go(AppRoutes.myVehicles);
+    } catch (e) {
+      if (mounted) VelixToast.showError(context, ApiClient.parseErrorMessage(e));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -371,9 +374,9 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                 height: 70,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: _photos.length + 1,
+                  itemCount: _photoCount + 1,
                   itemBuilder: (context, index) {
-                    if (index == _photos.length) {
+                    if (index == _photoCount) {
                       return GestureDetector(
                         onTap: _addPhoto,
                         child: Container(
@@ -402,14 +405,15 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                           margin: const EdgeInsets.only(right: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(image: NetworkImage(_photos[index]), fit: BoxFit.cover),
+                            image: DecorationImage(image: _photoAt(index), fit: BoxFit.cover),
                           ),
                         ),
-                        Positioned(
+                        // Only newly picked photos can be removed here (not yet uploaded).
+                        if (index >= _photos.length) Positioned(
                           right: 12,
                           top: 4,
                           child: GestureDetector(
-                            onTap: () => setState(() => _photos.removeAt(index)),
+                            onTap: () => setState(() => _newPhotos.removeAt(index - _photos.length)),
                             child: Container(
                               padding: const EdgeInsets.all(2),
                               decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
@@ -491,6 +495,16 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                   validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 12),
+                Text('Model Year', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textColor)),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _yearController,
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(color: textColor, fontSize: 14),
+                  decoration: _buildInputDecoration('e.g. 2022', inputBg, borderColor, subtextColor),
+                  validator: (v) => v == null || v.trim().length != 4 ? 'Enter a 4-digit year' : null,
+                ),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
@@ -520,8 +534,8 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                             dropdownColor: cardBg,
                             style: TextStyle(color: textColor, fontSize: 14),
                             decoration: _buildInputDecoration('Select', inputBg, borderColor, subtextColor),
-                            items: ['SUV', 'Sedan', 'Luxury', 'Sports', 'Convertible']
-                                .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                            items: _categories.keys
+                                .map((c) => DropdownMenuItem(value: c, child: Text(_categories[c]!)))
                                 .toList(),
                             onChanged: (val) => setState(() => _selectedCategory = val!),
                           ),
