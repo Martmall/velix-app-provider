@@ -11,11 +11,11 @@ class PartnerHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
 
     final authState = ref.watch(partnerAuthProvider);
     final fleetAsync = ref.watch(partnerFleetProvider);
@@ -76,11 +76,11 @@ class PartnerHomeScreen extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0C1830),
+                  color: VelixPalette.ink,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF0C1830).withValues(alpha: 0.3),
+                      color: VelixPalette.ink.withValues(alpha: 0.3),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -96,35 +96,35 @@ class PartnerHomeScreen extends ConsumerWidget {
                         ElevatedButton(
                           onPressed: () => context.go(AppRoutes.earnings),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFC84C00),
+                            backgroundColor: VelixPalette.copper,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             elevation: 0,
                           ),
-                          child: const Text('Wallet', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
+                          child: const Text('Wallet', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: VelixPalette.paper)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
                       '₦${totalEarnings.toStringAsFixed(0)}',
-                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: VelixPalette.paper),
                     ),
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
+                        color: VelixPalette.paper.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.shield_outlined, size: 12, color: Colors.lightGreenAccent),
+                          const Icon(Icons.shield_outlined, size: 12, color: VelixPalette.nightGo),
                           const SizedBox(width: 4),
                           Text(
                             totalEarnings > 0 ? 'Verified Host Account' : 'New Host Account (₦0 balance)',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.lightGreenAccent),
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: VelixPalette.nightGo),
                           ),
                         ],
                       ),
@@ -176,7 +176,7 @@ class PartnerHomeScreen extends ConsumerWidget {
                 Text('RECENT RENTALS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textColor, letterSpacing: 0.5)),
                 GestureDetector(
                   onTap: () => context.go(AppRoutes.partnerBookings),
-                  child: const Text('View All', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+                  child: const Text('View All', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
                 ),
               ],
             ),
@@ -207,10 +207,10 @@ class PartnerHomeScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
                     ElevatedButton.icon(
                       onPressed: () => context.go(AppRoutes.addVehicle),
-                      icon: const Icon(Icons.add, size: 16, color: Colors.white),
-                      label: const Text('Add First Vehicle', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                      icon: const Icon(Icons.add, size: 16, color: VelixPalette.paper),
+                      label: const Text('Add First Vehicle', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.paper)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC84C00),
+                        backgroundColor: VelixPalette.copper,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
@@ -221,8 +221,8 @@ class PartnerHomeScreen extends ConsumerWidget {
             else
               ...bookings.take(5).map((booking) {
                 final statusColor = booking.status == BookingStatus.active
-                    ? const Color(0xFF10B981)
-                    : (booking.status == BookingStatus.pending ? const Color(0xFFF59E0B) : const Color(0xFF6B7280));
+                    ? VelixPalette.go
+                    : (booking.status == BookingStatus.pending ? VelixPalette.brass : VelixPalette.muted);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: _buildActivityItem(
@@ -275,13 +275,13 @@ class PartnerHomeScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9),
+          color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFC84C00).withValues(alpha: 0.3)),
+          border: Border.all(color: VelixPalette.copper.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [
-            Icon(icon, color: const Color(0xFFC84C00), size: 20),
+            Icon(icon, color: VelixPalette.copper, size: 20),
             const SizedBox(height: 6),
             Text(
               label,
@@ -309,7 +309,7 @@ class PartnerHomeScreen extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
           const SizedBox(height: 4),
-          Text(sub, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isPositive ? const Color(0xFF10B981) : subtextColor)),
+          Text(sub, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isPositive ? VelixPalette.go : subtextColor)),
         ],
       ),
     );
@@ -349,7 +349,7 @@ class PartnerHomeScreen extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(price, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+                Text(price, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
                 Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusColor)),
               ],
             ),

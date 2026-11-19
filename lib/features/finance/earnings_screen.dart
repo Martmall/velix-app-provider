@@ -24,11 +24,11 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
       return;
     }
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     final amountController = TextEditingController();
     bool isSubmitting = false;
@@ -60,7 +60,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                        color: isDark ? VelixPalette.nightLineStrong : VelixPalette.line,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -78,12 +78,12 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0C1830),
+                      color: VelixPalette.ink,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.account_balance, color: Color(0xFFC84C00), size: 28),
+                        const Icon(Icons.account_balance, color: VelixPalette.copper, size: 28),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -91,11 +91,11 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                             children: [
                               Text(
                                 bankName,
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: VelixPalette.paper),
                               ),
                               Text(
                                 '$accountNumber • ${auth.user?.fullName ?? "Partner Host"}',
-                                style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7)),
+                                style: TextStyle(fontSize: 11, color: VelixPalette.paper.withValues(alpha: 0.7)),
                               ),
                             ],
                           ),
@@ -105,7 +105,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                             Navigator.pop(ctx);
                             BankAccountSheet.show(context);
                           },
-                          child: const Text('Edit Bank', style: TextStyle(color: Color(0xFFC84C00), fontSize: 11, fontWeight: FontWeight.bold)),
+                          child: const Text('Edit Bank', style: TextStyle(color: VelixPalette.copper, fontSize: 11, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -119,7 +119,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                     style: TextStyle(color: textColor, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'e.g. 50000',
-                      hintStyle: TextStyle(color: isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                      hintStyle: TextStyle(color: isDark ? Colors.white38 : VelixPalette.lineStrong),
                       filled: true,
                       fillColor: inputBg,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -185,11 +185,11 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
 
     final walletAsync = ref.watch(partnerWalletProvider);
 
@@ -232,11 +232,11 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF0C1830),
+                color: VelixPalette.ink,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF0C1830).withValues(alpha: 0.3),
+                    color: VelixPalette.ink.withValues(alpha: 0.3),
                     blurRadius: 16,
                     offset: const Offset(0, 8),
                   ),
@@ -252,7 +252,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                       ElevatedButton(
                         onPressed: _showWithdrawalModal,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFC84C00),
+                          backgroundColor: VelixPalette.copper,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           elevation: 0,
@@ -260,11 +260,11 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.arrow_upward, size: 13, color: Colors.white),
+                            Icon(Icons.arrow_upward, size: 13, color: VelixPalette.paper),
                             SizedBox(width: 4),
                             Text(
                               'Request Withdrawal',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: VelixPalette.paper),
                             ),
                           ],
                         ),
@@ -274,23 +274,23 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                   const SizedBox(height: 6),
                   Text(
                     '₦${totalEarnings.toStringAsFixed(0)}',
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: VelixPalette.paper),
                   ),
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: VelixPalette.paper.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.shield_outlined, size: 12, color: Colors.lightGreenAccent),
+                        Icon(Icons.shield_outlined, size: 12, color: VelixPalette.nightGo),
                         SizedBox(width: 4),
                         Text(
                           'Verified Host Account • Daily Settlements',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.lightGreenAccent),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: VelixPalette.nightGo),
                         ),
                       ],
                     ),
@@ -306,7 +306,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                 Text('WALLET & PAYOUT TRANSACTIONS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textColor, letterSpacing: 0.5)),
                 GestureDetector(
                   onTap: _showWithdrawalModal,
-                  child: const Text('+ Request Payout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+                  child: const Text('+ Request Payout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
                 ),
               ],
             ),
@@ -350,15 +350,15 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor: isPending
-                            ? const Color(0xFFFEF3C7)
-                            : (tx.isCredit ? const Color(0xFFECFDF5) : const Color(0xFFFEE2E2)),
+                            ? VelixPalette.amberSoft
+                            : (tx.isCredit ? VelixPalette.goSoft : VelixPalette.claimSoft),
                         child: Icon(
                           isPending
                               ? Icons.hourglass_top_rounded
                               : (tx.isCredit ? Icons.arrow_downward : Icons.arrow_upward),
                           color: isPending
-                              ? const Color(0xFFD97706)
-                              : (tx.isCredit ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
+                              ? VelixPalette.onAmberSoft
+                              : (tx.isCredit ? VelixPalette.go : VelixPalette.claim),
                           size: 18,
                         ),
                       ),
@@ -374,13 +374,13 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFD97706).withValues(alpha: 0.15),
+                                color: VelixPalette.onAmberSoft.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: const Color(0xFFD97706).withValues(alpha: 0.3)),
+                                border: Border.all(color: VelixPalette.onAmberSoft.withValues(alpha: 0.3)),
                               ),
                               child: const Text(
                                 'Pending Approval',
-                                style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
+                                style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: VelixPalette.onAmberSoft),
                               ),
                             ),
                         ],
@@ -392,8 +392,8 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> {
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: isPending
-                              ? const Color(0xFFD97706)
-                              : (tx.isCredit ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
+                              ? VelixPalette.onAmberSoft
+                              : (tx.isCredit ? VelixPalette.go : VelixPalette.claim),
                         ),
                       ),
                     );

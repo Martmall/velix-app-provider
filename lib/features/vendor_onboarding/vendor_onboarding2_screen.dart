@@ -10,7 +10,7 @@ class VendorOnboarding2Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: VelixPalette.paper,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -32,7 +32,7 @@ class VendorOnboarding2Screen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFFC84C00),
+                  color: VelixPalette.copper,
                   height: 1.2,
                 ),
               ),
@@ -44,7 +44,7 @@ class VendorOnboarding2Screen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF374151),
+                    color: VelixPalette.muted,
                     height: 1.4,
                   ),
                 ),
@@ -57,7 +57,7 @@ class VendorOnboarding2Screen extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
+                      color: VelixPalette.line,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -66,7 +66,7 @@ class VendorOnboarding2Screen extends StatelessWidget {
                     width: 20,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFC84C00),
+                      color: VelixPalette.copper,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -75,7 +75,7 @@ class VendorOnboarding2Screen extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
+                      color: VelixPalette.line,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -84,7 +84,7 @@ class VendorOnboarding2Screen extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
+                      color: VelixPalette.line,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),

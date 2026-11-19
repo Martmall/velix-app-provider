@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class OnboardingHero2Widget extends StatelessWidget {
   const OnboardingHero2Widget({super.key});
 
@@ -16,7 +17,7 @@ class OnboardingHero2Widget extends StatelessWidget {
             width: 260,
             height: 260,
             decoration: const BoxDecoration(
-              color: Color(0xFFFDF0E9),
+              color: VelixPalette.copperSoft,
               shape: BoxShape.circle,
             ),
           ),
@@ -27,7 +28,7 @@ class OnboardingHero2Widget extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: const Color(0xFFC84C00).withValues(alpha: 0.1),
+                color: VelixPalette.copper.withValues(alpha: 0.1),
                 width: 2,
               ),
             ),
@@ -47,7 +48,7 @@ class OnboardingHero2Widget extends StatelessWidget {
         height: 250,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF0C1830),
+          color: VelixPalette.ink,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
@@ -60,7 +61,7 @@ class OnboardingHero2Widget extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(22),
           child: Container(
-            color: const Color(0xFFF8F9FA),
+            color: VelixPalette.stone,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +71,7 @@ class OnboardingHero2Widget extends StatelessWidget {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0C1830),
+                      color: VelixPalette.ink,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -78,14 +79,14 @@ class OnboardingHero2Widget extends StatelessWidget {
                 const SizedBox(height: 6),
                 const Row(
                   children: [
-                    Icon(Icons.arrow_back_ios, size: 10, color: Color(0xFF0C1830)),
+                    Icon(Icons.arrow_back_ios, size: 10, color: VelixPalette.ink),
                     SizedBox(width: 2),
                     Text(
                       'My Bookings',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0C1830),
+                        color: VelixPalette.ink,
                       ),
                     ),
                   ],
@@ -107,9 +108,9 @@ class OnboardingHero2Widget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: VelixPalette.paper,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                    border: Border.all(color: VelixPalette.line),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,25 +121,25 @@ class OnboardingHero2Widget extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Micheal Benson', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF0C1830))),
-                              Text('Toyota Camry 2022', style: TextStyle(fontSize: 7, color: Color(0xFF6B7280))),
+                              Text('Micheal Benson', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: VelixPalette.ink)),
+                              Text('Toyota Camry 2022', style: TextStyle(fontSize: 7, color: VelixPalette.muted)),
                             ],
                           ),
-                          Text('₦35,000', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+                          Text('₦35,000', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
                         ],
                       ),
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
+                          color: VelixPalette.stone,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('14 May - 17 May', style: TextStyle(fontSize: 7, color: Color(0xFF374151))),
-                            Text('3 days', style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: Color(0xFF0C1830))),
+                            Text('14 May - 17 May', style: TextStyle(fontSize: 7, color: VelixPalette.muted)),
+                            Text('3 days', style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: VelixPalette.ink)),
                           ],
                         ),
                       ),
@@ -149,11 +150,11 @@ class OnboardingHero2Widget extends StatelessWidget {
                             child: Container(
                               height: 16,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFC84C00),
+                                color: VelixPalette.copper,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Center(
-                                child: Text('Approve', style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: Colors.white)),
+                                child: Text('Approve', style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: VelixPalette.paper)),
                               ),
                             ),
                           ),
@@ -162,11 +163,11 @@ class OnboardingHero2Widget extends StatelessWidget {
                             child: Container(
                               height: 16,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE5E7EB),
+                                color: VelixPalette.line,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Center(
-                                child: Text('Reject', style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: Color(0xFF374151))),
+                                child: Text('Reject', style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: VelixPalette.muted)),
                               ),
                             ),
                           ),
@@ -187,16 +188,16 @@ class OnboardingHero2Widget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFC84C00) : Colors.white,
+        color: isSelected ? VelixPalette.copper : VelixPalette.paper,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: isSelected ? const Color(0xFFC84C00) : const Color(0xFFE5E7EB)),
+        border: Border.all(color: isSelected ? VelixPalette.copper : VelixPalette.line),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 7,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.white : const Color(0xFF6B7280),
+          color: isSelected ? VelixPalette.paper : VelixPalette.muted,
         ),
       ),
     );

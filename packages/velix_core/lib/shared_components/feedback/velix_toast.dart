@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 enum VelixToastType { success, error, info, warning }
 
 class VelixToast {
@@ -119,13 +120,13 @@ class _VelixToastWidgetState extends State<_VelixToastWidget>
   Color _getIconColor() {
     switch (widget.type) {
       case VelixToastType.success:
-        return const Color(0xFF10B981); // Emerald
+        return VelixPalette.go; // Emerald
       case VelixToastType.error:
-        return const Color(0xFFEF4444); // Crimson
+        return VelixPalette.claim; // Crimson
       case VelixToastType.warning:
-        return const Color(0xFFF59E0B); // Amber
+        return VelixPalette.brass; // Amber
       case VelixToastType.info:
-        return const Color(0xFFC84C00); // Velix Orange
+        return VelixPalette.copper; // Velix Orange
     }
   }
 
@@ -145,7 +146,7 @@ class _VelixToastWidgetState extends State<_VelixToastWidget>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = isDark ? const Color(0xFF161922) : const Color(0xFF0C1830);
+    final bg = isDark ? VelixPalette.nightPaper : VelixPalette.ink;
     final iconColor = _getIconColor();
 
     return Positioned(
@@ -208,7 +209,7 @@ class _VelixToastWidgetState extends State<_VelixToastWidget>
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: VelixPalette.paper,
                             letterSpacing: -0.2,
                           ),
                         ),
@@ -219,7 +220,7 @@ class _VelixToastWidgetState extends State<_VelixToastWidget>
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF94A3B8),
+                            color: VelixPalette.lineStrong,
                             height: 1.3,
                           ),
                         ),
@@ -233,7 +234,7 @@ class _VelixToastWidgetState extends State<_VelixToastWidget>
                       padding: EdgeInsets.all(4.0),
                       child: Icon(
                         Icons.close_rounded,
-                        color: Color(0xFF64748B),
+                        color: VelixPalette.muted,
                         size: 16,
                       ),
                     ),

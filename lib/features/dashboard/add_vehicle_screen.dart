@@ -153,18 +153,18 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
           data: isDark
               ? ThemeData.dark().copyWith(
                   colorScheme: const ColorScheme.dark(
-                    primary: Color(0xFFC84C00),
-                    onPrimary: Colors.white,
-                    surface: Color(0xFF161922),
-                    onSurface: Colors.white,
+                    primary: VelixPalette.copper,
+                    onPrimary: VelixPalette.paper,
+                    surface: VelixPalette.nightPaper,
+                    onSurface: VelixPalette.paper,
                   ),
                 )
               : ThemeData.light().copyWith(
                   colorScheme: const ColorScheme.light(
-                    primary: Color(0xFFC84C00),
-                    onPrimary: Colors.white,
-                    surface: Colors.white,
-                    onSurface: Color(0xFF0C1830),
+                    primary: VelixPalette.copper,
+                    onPrimary: VelixPalette.paper,
+                    surface: VelixPalette.paper,
+                    onSurface: VelixPalette.ink,
                   ),
                 ),
           child: child!,
@@ -254,12 +254,12 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF9FAFB);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     final ytId = _extractYoutubeId(_videoUrlController.text);
 
@@ -301,14 +301,14 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                   margin: const EdgeInsets.only(bottom: 18),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFEF3C7),
+                    color: VelixPalette.amberSoft,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFF59E0B)),
+                    border: Border.all(color: VelixPalette.brass),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.info_outline, color: Color(0xFFD97706), size: 20),
+                      const Icon(Icons.info_outline, color: VelixPalette.onAmberSoft, size: 20),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
@@ -316,14 +316,14 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                           children: [
                             const Text(
                               'Business (CAC) Verification Required',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: VelixPalette.onAmberSoft),
                             ),
                             const SizedBox(height: 3),
                             Text(
                               ref.watch(partnerAuthProvider).user?.cacDocumentUrl != null
                                   ? 'Your CAC certificate is currently under review by Admin at /admin/partner-verification. Listings will go live upon approval.'
                                   : 'Please complete your CAC business verification before your vehicle listings can accept live bookings.',
-                              style: const TextStyle(fontSize: 11, color: Color(0xFF78350F), height: 1.3),
+                              style: const TextStyle(fontSize: 11, color: VelixPalette.onAmberSoft, height: 1.3),
                             ),
                             if (ref.watch(partnerAuthProvider).user?.cacDocumentUrl == null) ...[
                               const SizedBox(height: 8),
@@ -331,7 +331,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                                 onTap: () => context.go(AppRoutes.partnerSetUp),
                                 child: const Text(
                                   'Complete CAC Registration →',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                                 ),
                               ),
                             ],
@@ -353,17 +353,17 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9),
+                    color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFC84C00), width: 1.5),
+                    border: Border.all(color: VelixPalette.copper, width: 1.5),
                   ),
                   child: const Column(
                     children: [
-                      Icon(Icons.add_a_photo_outlined, size: 36, color: Color(0xFFC84C00)),
+                      Icon(Icons.add_a_photo_outlined, size: 36, color: VelixPalette.copper),
                       SizedBox(height: 8),
-                      Text('Upload Vehicle Photos', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+                      Text('Upload Vehicle Photos', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
                       SizedBox(height: 4),
-                      Text('Tap to select real images (JPG, PNG)', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                      Text('Tap to select real images (JPG, PNG)', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: VelixPalette.muted)),
                     ],
                   ),
                 ),
@@ -383,15 +383,15 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                           width: 70,
                           margin: const EdgeInsets.only(right: 8),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9),
+                            color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: borderColor),
                           ),
                           child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.add, color: Color(0xFFC84C00), size: 20),
-                              Text('Add More', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+                              Icon(Icons.add, color: VelixPalette.copper, size: 20),
+                              Text('Add More', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
                             ],
                           ),
                         ),
@@ -416,8 +416,8 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                             onTap: () => setState(() => _newPhotos.removeAt(index - _photos.length)),
                             child: Container(
                               padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                              child: const Icon(Icons.close, size: 12, color: Colors.white),
+                              decoration: const BoxDecoration(color: VelixPalette.claim, shape: BoxShape.circle),
+                              child: const Icon(Icons.close, size: 12, color: VelixPalette.paper),
                             ),
                           ),
                         ),
@@ -435,10 +435,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF0000).withValues(alpha: 0.15),
+                        color: VelixPalette.claim.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Icon(Icons.play_circle_fill, color: Color(0xFFFF0000), size: 18),
+                      child: const Icon(Icons.play_circle_fill, color: VelixPalette.claim, size: 18),
                     ),
                     const SizedBox(width: 8),
                     Text('YouTube Car Video (Optional)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textColor)),
@@ -451,7 +451,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                   controller: _videoUrlController,
                   style: TextStyle(color: textColor, fontSize: 13),
                   decoration: _buildInputDecoration('e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ', inputBg, borderColor, subtextColor).copyWith(
-                    prefixIcon: const Icon(Icons.link, color: Color(0xFFFF0000), size: 18),
+                    prefixIcon: const Icon(Icons.link, color: VelixPalette.claim, size: 18),
                   ),
                   onChanged: (_) => setState(() {}),
                 ),
@@ -474,7 +474,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                           color: Colors.black.withValues(alpha: 0.7),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.play_arrow, color: Colors.white, size: 32),
+                        child: const Icon(Icons.play_arrow, color: VelixPalette.paper, size: 32),
                       ),
                     ),
                   ),
@@ -604,8 +604,8 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                     ),
                     Switch(
                       value: _isAvailable,
-                      activeThumbColor: const Color(0xFFC84C00),
-                      activeTrackColor: const Color(0xFFC84C00).withValues(alpha: 0.3),
+                      activeThumbColor: VelixPalette.copper,
+                      activeTrackColor: VelixPalette.copper.withValues(alpha: 0.3),
                       onChanged: (val) => setState(() => _isAvailable = val),
                     ),
                   ],
@@ -624,10 +624,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                     ),
                     OutlinedButton.icon(
                       onPressed: _pickBlockedDateRange,
-                      icon: const Icon(Icons.date_range, size: 16, color: Color(0xFFC84C00)),
-                      label: const Text('Add Range', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+                      icon: const Icon(Icons.date_range, size: 16, color: VelixPalette.copper),
+                      label: const Text('Add Range', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFC84C00)),
+                        side: const BorderSide(color: VelixPalette.copper),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
@@ -641,13 +641,13 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                     runSpacing: 8,
                     children: _blockedDates.map((date) {
                       return Chip(
-                        backgroundColor: isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9),
-                        side: const BorderSide(color: Color(0xFFC84C00)),
+                        backgroundColor: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
+                        side: const BorderSide(color: VelixPalette.copper),
                         label: Text(
                           '${date.day}/${date.month}/${date.year}',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                         ),
-                        deleteIcon: const Icon(Icons.close, size: 14, color: Color(0xFFC84C00)),
+                        deleteIcon: const Icon(Icons.close, size: 14, color: VelixPalette.copper),
                         onDeleted: () => setState(() => _blockedDates.remove(date)),
                       );
                     }).toList(),
@@ -714,11 +714,11 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         color: isChecked
-                            ? (isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9))
-                            : (isDark ? const Color(0xFF1F2430) : const Color(0xFFF9FAFB)),
+                            ? (isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft)
+                            : (isDark ? VelixPalette.nightStone3 : VelixPalette.stone),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isChecked ? const Color(0xFFC84C00) : borderColor,
+                          color: isChecked ? VelixPalette.copper : borderColor,
                           width: isChecked ? 1.5 : 1,
                         ),
                       ),
@@ -728,14 +728,14 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: isChecked ? FontWeight.bold : FontWeight.w500,
-                            color: isChecked ? const Color(0xFFC84C00) : textColor,
+                            color: isChecked ? VelixPalette.copper : textColor,
                           ),
                         ),
                         value: isChecked,
-                        activeColor: const Color(0xFFC84C00),
-                        checkColor: Colors.white,
+                        activeColor: VelixPalette.copper,
+                        checkColor: VelixPalette.paper,
                         side: BorderSide(
-                          color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF),
+                          color: isDark ? VelixPalette.nightMuted : VelixPalette.lineStrong,
                           width: 2,
                         ),
                         checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -766,10 +766,10 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9),
+            color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, size: 18, color: const Color(0xFFC84C00)),
+          child: Icon(icon, size: 18, color: VelixPalette.copper),
         ),
         const SizedBox(width: 8),
         Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
@@ -794,7 +794,7 @@ class _AddVehicleScreenState extends ConsumerState<AddVehicleScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFC84C00), width: 1.5)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: VelixPalette.copper, width: 1.5)),
     );
   }
 }

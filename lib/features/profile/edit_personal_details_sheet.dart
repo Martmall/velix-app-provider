@@ -70,10 +70,10 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final titleColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF9FAFB);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final titleColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     return Container(
       decoration: BoxDecoration(
@@ -99,7 +99,7 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                      color: isDark ? VelixPalette.nightLineStrong : VelixPalette.line,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -113,7 +113,7 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: titleColor),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close, size: 20, color: isDark ? Colors.white70 : const Color(0xFF6B7280)),
+                      icon: Icon(Icons.close, size: 20, color: isDark ? Colors.white70 : VelixPalette.muted),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -125,14 +125,14 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundColor: const Color(0xFFFDF0E9),
+                        backgroundColor: VelixPalette.copperSoft,
                         backgroundImage: _avatarUrl != null && _avatarUrl!.isNotEmpty ? NetworkImage(_avatarUrl!) : null,
                         child: _avatarUrl == null || _avatarUrl!.isEmpty
                             ? Text(
                                 _nameController.text.isNotEmpty
                                     ? _nameController.text.trim().split(' ').map((p) => p.isNotEmpty ? p[0] : '').take(2).join().toUpperCase()
                                     : 'ME',
-                                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                               )
                             : null,
                       ),
@@ -144,10 +144,10 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: const BoxDecoration(
-                              color: Color(0xFFC84C00),
+                              color: VelixPalette.copper,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.camera_alt, size: 14, color: Colors.white),
+                            child: const Icon(Icons.camera_alt, size: 14, color: VelixPalette.paper),
                           ),
                         ),
                       ),
@@ -163,13 +163,13 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                   style: TextStyle(color: titleColor, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Enter your full name',
-                    hintStyle: TextStyle(color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF)),
+                    hintStyle: TextStyle(color: isDark ? VelixPalette.nightMuted : VelixPalette.lineStrong),
                     filled: true,
                     fillColor: inputBg,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFC84C00), width: 1.5)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: VelixPalette.copper, width: 1.5)),
                   ),
                   validator: (v) => v == null || v.trim().isEmpty ? 'Full name is required' : null,
                 ),
@@ -185,13 +185,13 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                   style: TextStyle(color: titleColor, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'e.g. partner@velix.ng',
-                    hintStyle: TextStyle(color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF)),
+                    hintStyle: TextStyle(color: isDark ? VelixPalette.nightMuted : VelixPalette.lineStrong),
                     filled: true,
                     fillColor: inputBg,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFC84C00), width: 1.5)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: VelixPalette.copper, width: 1.5)),
                   ),
                   validator: (v) => v == null || !v.contains('@') ? 'Valid email required' : null,
                 ),
@@ -205,13 +205,13 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                   style: TextStyle(color: titleColor, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'e.g. +234 801 234 5678',
-                    hintStyle: TextStyle(color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF)),
+                    hintStyle: TextStyle(color: isDark ? VelixPalette.nightMuted : VelixPalette.lineStrong),
                     filled: true,
                     fillColor: inputBg,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFC84C00), width: 1.5)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: VelixPalette.copper, width: 1.5)),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -222,13 +222,13 @@ class _EditPersonalDetailsSheetState extends ConsumerState<EditPersonalDetailsSh
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _saveProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC84C00),
-                      foregroundColor: Colors.white,
+                      backgroundColor: VelixPalette.copper,
+                      foregroundColor: VelixPalette.paper,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       elevation: 0,
                     ),
                     child: _isSaving
-                        ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                        ? const CircularProgressIndicator(color: VelixPalette.paper, strokeWidth: 2)
                         : const Text('Save Changes', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   ),
                 ),

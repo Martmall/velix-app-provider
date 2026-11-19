@@ -71,10 +71,10 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
 
   void _showUnderReviewDialog() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final docBoxBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final docBoxBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     showDialog(
       context: context,
@@ -84,7 +84,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.hourglass_top, color: Color(0xFFC84C00), size: 28),
+            const Icon(Icons.hourglass_top, color: VelixPalette.copper, size: 28),
             const SizedBox(width: 10),
             Text('Under Admin Review', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: textColor)),
           ],
@@ -95,7 +95,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
           children: [
             Text(
               'Your business details and registration documents have been submitted to the Admin Verification Desk.',
-              style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF4B5563)),
+              style: TextStyle(fontSize: 14, color: isDark ? VelixPalette.nightMuted : VelixPalette.muted),
             ),
             const SizedBox(height: 12),
             Container(
@@ -132,7 +132,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
               Navigator.pop(ctx);
               context.go(AppRoutes.partnerHome);
             },
-            child: const Text('Go to Dashboard (Pending Approval)', style: TextStyle(color: Color(0xFFC84C00), fontWeight: FontWeight.bold)),
+            child: const Text('Go to Dashboard (Pending Approval)', style: TextStyle(color: VelixPalette.copper, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -142,12 +142,12 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF9FAFB);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     final auth = ref.watch(partnerAuthProvider);
     final hasSubmitted = auth.user?.cacDocumentUrl != null || _isDocUploaded;
@@ -202,11 +202,11 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isApproved
-                          ? (isDark ? const Color(0xFF0D2E1A) : const Color(0xFFD1FAE5))
-                          : (isDark ? const Color(0xFF2C220E) : const Color(0xFFFEF3C7)),
+                          ? (isDark ? VelixPalette.nightGoSoft : VelixPalette.goSoft)
+                          : (isDark ? VelixPalette.nightAmberSoft : VelixPalette.amberSoft),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isApproved ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                        color: isApproved ? VelixPalette.go : VelixPalette.brass,
                       ),
                     ),
                     child: Column(
@@ -216,7 +216,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                           children: [
                             Icon(
                               isApproved ? Icons.verified : Icons.hourglass_top,
-                              color: isApproved ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                              color: isApproved ? VelixPalette.go : VelixPalette.brass,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
@@ -225,7 +225,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: isApproved ? const Color(0xFF047857) : const Color(0xFFB45309),
+                                color: isApproved ? VelixPalette.go : VelixPalette.onAmberSoft,
                               ),
                             ),
                           ],
@@ -237,7 +237,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                               : 'Your submitted CAC documents are being audited by the Velix Verification Desk at /admin/partner-verification.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: isApproved ? (isDark ? const Color(0xFFA7F3D0) : const Color(0xFF065F46)) : (isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E)),
+                            color: isApproved ? (isDark ? VelixPalette.nightOnGoSoft : VelixPalette.onGoSoft) : (isDark ? VelixPalette.nightOnAmberSoft : VelixPalette.onAmberSoft),
                           ),
                         ),
                         if (_uploadedDocName != null) ...[
@@ -250,7 +250,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.picture_as_pdf, color: Color(0xFFEF4444), size: 18),
+                                const Icon(Icons.picture_as_pdf, color: VelixPalette.claim, size: 18),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -261,7 +261,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                const Text('Attached', style: TextStyle(fontSize: 11, color: Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                                const Text('Attached', style: TextStyle(fontSize: 11, color: VelixPalette.go, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
@@ -304,7 +304,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                             color: inputBg,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: _isDocUploaded ? const Color(0xFF10B981) : borderColor,
+                              color: _isDocUploaded ? VelixPalette.go : borderColor,
                               width: _isDocUploaded ? 1.5 : 1.0,
                             ),
                           ),
@@ -314,12 +314,12 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: _isDocUploaded ? const Color(0xFFD1FAE5) : (isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9)),
+                                  color: _isDocUploaded ? VelixPalette.goSoft : (isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(
                                   _isDocUploaded ? Icons.check_circle : Icons.upload_file,
-                                  color: _isDocUploaded ? const Color(0xFF10B981) : const Color(0xFFC84C00),
+                                  color: _isDocUploaded ? VelixPalette.go : VelixPalette.copper,
                                   size: 24,
                                 ),
                               ),
@@ -333,7 +333,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold,
-                                        color: _isDocUploaded ? const Color(0xFF10B981) : textColor,
+                                        color: _isDocUploaded ? VelixPalette.go : textColor,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -376,7 +376,7 @@ class _PartnerSetUpScreenState extends ConsumerState<PartnerSetUpScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFC84C00), width: 1.5)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: VelixPalette.copper, width: 1.5)),
     );
   }
 }

@@ -81,9 +81,9 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
 
   void _showLanguageModal() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final sheetBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
+    final sheetBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
 
     final languages = [
       {'name': 'English (EN)', 'native': 'English'},
@@ -116,7 +116,7 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                      color: isDark ? VelixPalette.nightLineStrong : VelixPalette.line,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -135,7 +135,7 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                       lang['name']!,
                       style: TextStyle(
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected ? const Color(0xFFC84C00) : textColor,
+                        color: isSelected ? VelixPalette.copper : textColor,
                       ),
                     ),
                     subtitle: Text(
@@ -143,7 +143,7 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                       style: TextStyle(fontSize: 12, color: subtextColor),
                     ),
                     trailing: isSelected
-                        ? const Icon(Icons.check_circle, color: Color(0xFFC84C00))
+                        ? const Icon(Icons.check_circle, color: VelixPalette.copper)
                         : null,
                     onTap: () {
                       setState(() => _selectedLanguage = lang['name']!);
@@ -166,11 +166,11 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final borderColor = isDark ? const Color(0xFF2A2E3D) : const Color(0xFFE5E7EB);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
 
     final authState = ref.watch(partnerAuthProvider);
     final user = authState.user;
@@ -223,7 +223,7 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFC84C00),
+                    color: VelixPalette.copper,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -242,11 +242,11 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC84C00),
+                  color: VelixPalette.copper,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFC84C00).withValues(alpha: 0.3),
+                      color: VelixPalette.copper.withValues(alpha: 0.3),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -261,14 +261,14 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                           children: [
                             CircleAvatar(
                               radius: 36,
-                              backgroundColor: const Color(0xFFFDF0E9),
+                              backgroundColor: VelixPalette.copperSoft,
                               backgroundImage: user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty
                                   ? NetworkImage(user.avatarUrl!)
                                   : null,
                               child: user?.avatarUrl == null || user!.avatarUrl!.isEmpty
                                   ? Text(
                                       initials.isNotEmpty ? initials : 'ME',
-                                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                                     )
                                   : null,
                             ),
@@ -278,10 +278,10 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                  color: VelixPalette.paper,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.edit, size: 14, color: Color(0xFFC84C00)),
+                                child: const Icon(Icons.edit, size: 14, color: VelixPalette.copper),
                               ),
                             ),
                           ],
@@ -293,7 +293,7 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                             children: [
                               Text(
                                 displayName,
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: VelixPalette.paper),
                               ),
                               const SizedBox(height: 2),
                               Text(
@@ -306,12 +306,12 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                                   Icon(
                                     user?.isVerified == true ? Icons.check_circle : Icons.hourglass_top,
                                     size: 14,
-                                    color: Colors.white,
+                                    color: VelixPalette.paper,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
                                     user?.isVerified == true ? 'Verified Partner' : 'Verification Pending',
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.paper),
                                   ),
                                 ],
                               ),
@@ -342,12 +342,12 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
             _buildSettingCard(
               context: context,
               icon: Icons.business_outlined,
-              iconBg: isDark ? const Color(0xFF331616) : const Color(0xFFFEE2E2),
-              iconColor: const Color(0xFFEF4444),
+              iconBg: isDark ? VelixPalette.nightClaimSoft : VelixPalette.claimSoft,
+              iconColor: VelixPalette.claim,
               title: 'Business Information',
               subtitle: user?.businessName ?? 'Submit CAC Registration',
               badgeText: user?.cacStatus == 'approved' ? 'Approved' : (user?.cacDocumentUrl != null ? 'Under Review' : null),
-              badgeColor: user?.cacStatus == 'approved' ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+              badgeColor: user?.cacStatus == 'approved' ? VelixPalette.go : VelixPalette.brass,
               onTap: () => context.go(AppRoutes.partnerSetUp),
             ),
             const SizedBox(height: 12),
@@ -355,12 +355,12 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
             _buildSettingCard(
               context: context,
               icon: Icons.account_balance_outlined,
-              iconBg: isDark ? const Color(0xFF0F2E22) : const Color(0xFFD1FAE5),
-              iconColor: const Color(0xFF10B981),
+              iconBg: isDark ? VelixPalette.nightGoSoft : VelixPalette.goSoft,
+              iconColor: VelixPalette.go,
               title: 'Bank Account',
               subtitle: user?.bankName != null ? '${user!.bankName!} (${user.accountNumber ?? ""})' : 'Add Bank Account for Payouts',
               badgeText: user?.isBankVerified == true ? 'Verified' : null,
-              badgeColor: const Color(0xFF10B981),
+              badgeColor: VelixPalette.go,
               onTap: () => BankAccountSheet.show(context),
             ),
             const SizedBox(height: 12),
@@ -368,8 +368,8 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
             _buildSettingCard(
               context: context,
               icon: Icons.notifications_none_outlined,
-              iconBg: isDark ? const Color(0xFF14223A) : const Color(0xFFDBEAFE),
-              iconColor: const Color(0xFF3B82F6),
+              iconBg: isDark ? VelixPalette.nightPaper : VelixPalette.stone2,
+              iconColor: isDark ? VelixPalette.nightInk : VelixPalette.ink,
               title: 'Notifications & Alerts',
               subtitle: 'Manage trip updates and notifications',
               onTap: () => context.go(AppRoutes.partnerTripUpdates),
@@ -379,8 +379,8 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
             _buildSettingCard(
               context: context,
               icon: Icons.language,
-              iconBg: isDark ? const Color(0xFF281E3B) : const Color(0xFFE0E7FF),
-              iconColor: const Color(0xFF6366F1),
+              iconBg: isDark ? VelixPalette.nightStone3 : VelixPalette.stone2,
+              iconColor: isDark ? VelixPalette.nightInk : VelixPalette.ink,
               title: 'Language',
               subtitle: _selectedLanguage,
               onTap: _showLanguageModal,
@@ -400,10 +400,10 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF451A03) : const Color(0xFFFDF0E9),
+                      color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.fingerprint_rounded, color: Color(0xFFC84C00), size: 22),
+                    child: const Icon(Icons.fingerprint_rounded, color: VelixPalette.copper, size: 22),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -417,7 +417,7 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                               : 'Toggle ON to enable fingerprint quick login',
                           style: TextStyle(
                             fontSize: 10,
-                            color: _isBiometricEnabled ? const Color(0xFF10B981) : subtextColor,
+                            color: _isBiometricEnabled ? VelixPalette.go : subtextColor,
                             fontWeight: _isBiometricEnabled ? FontWeight.bold : FontWeight.normal,
                           ),
                         ),
@@ -426,8 +426,8 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
                   ),
                   Switch(
                     value: _isBiometricEnabled,
-                    activeTrackColor: const Color(0xFFC84C00),
-                    activeThumbColor: Colors.white,
+                    activeTrackColor: VelixPalette.copper,
+                    activeThumbColor: VelixPalette.paper,
                     onChanged: _handleToggleBiometrics,
                   ),
                 ],
@@ -438,8 +438,8 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
             _buildSettingCard(
               context: context,
               icon: Icons.support_agent_outlined,
-              iconBg: isDark ? const Color(0xFF332711) : const Color(0xFFFEF3C7),
-              iconColor: const Color(0xFFF59E0B),
+              iconBg: isDark ? VelixPalette.nightAmberSoft : VelixPalette.amberSoft,
+              iconColor: VelixPalette.brass,
               title: 'Help & Support',
               subtitle: 'Contact Velix Support Team',
               onTap: () => context.go(AppRoutes.supportDisputes),
@@ -460,18 +460,18 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
               },
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(50),
-                side: BorderSide(color: isDark ? const Color(0xFF331616) : const Color(0xFFFEE2E2)),
+                side: BorderSide(color: isDark ? VelixPalette.nightClaimSoft : VelixPalette.claimSoft),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 backgroundColor: cardBg,
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.logout, color: Color(0xFFEF4444), size: 18),
+                  Icon(Icons.logout, color: VelixPalette.claim, size: 18),
                   SizedBox(width: 8),
                   Text(
                     'Log Out',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: VelixPalette.claim),
                   ),
                 ],
               ),
@@ -518,10 +518,10 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
     required VoidCallback onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
 
     return InkWell(
       onTap: onTap,
@@ -567,12 +567,12 @@ class _PartnerProfileScreenState extends ConsumerState<PartnerProfileScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: (badgeColor ?? const Color(0xFF10B981)).withValues(alpha: 0.15),
+                  color: (badgeColor ?? VelixPalette.go).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   badgeText,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: badgeColor ?? const Color(0xFF10B981)),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: badgeColor ?? VelixPalette.go),
                 ),
               ),
               const SizedBox(width: 8),
@@ -597,7 +597,7 @@ class _StatItem extends StatelessWidget {
       children: [
         Text(
           number,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: VelixPalette.paper),
         ),
         const SizedBox(height: 2),
         Text(

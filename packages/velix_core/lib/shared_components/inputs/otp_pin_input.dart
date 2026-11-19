@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class OtpPinInput extends StatefulWidget {
   final int length;
   final ValueChanged<String> onCompleted;
@@ -59,10 +60,10 @@ class _OtpPinInputState extends State<OtpPinInput> {
 
   @override
   Widget build(BuildContext context) {
-    final bg = widget.fillColor ?? Colors.white;
-    final txtColor = widget.textColor ?? const Color(0xFFC84C00);
-    final borderCol = widget.borderColor ?? const Color(0xFFE5E7EB);
-    final activeBorderCol = widget.activeBorderColor ?? const Color(0xFFC84C00);
+    final bg = widget.fillColor ?? VelixPalette.paper;
+    final txtColor = widget.textColor ?? VelixPalette.copper;
+    final borderCol = widget.borderColor ?? VelixPalette.line;
+    final activeBorderCol = widget.activeBorderColor ?? VelixPalette.copper;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -3,6 +3,7 @@ import '../../models/user_model.dart';
 import '../../data_sources/remote/auth_remote_data_source.dart';
 import '../../network/api_client.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class SocialAuthModal {
   static Future<UserModel?> show({
     required BuildContext context,
@@ -11,9 +12,9 @@ class SocialAuthModal {
   }) async {
     final isGoogle = provider.toLowerCase() == 'google';
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
 
     // Show clean authenticating dialog
     showDialog<void>(
@@ -33,7 +34,7 @@ class SocialAuthModal {
                 decoration: BoxDecoration(
                   color: isGoogle
                       ? const Color(0xFF4285F4).withValues(alpha: 0.12)
-                      : (isDark ? const Color(0xFF262B38) : const Color(0xFFF3F4F6)),
+                      : (isDark ? VelixPalette.nightLine : VelixPalette.stone),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -49,7 +50,7 @@ class SocialAuthModal {
                       : Icon(
                           Icons.apple,
                           size: 30,
-                          color: isDark ? Colors.white : Colors.black,
+                          color: isDark ? VelixPalette.paper : Colors.black,
                         ),
                 ),
               ),
@@ -70,7 +71,7 @@ class SocialAuthModal {
               ),
               const SizedBox(height: 24),
               const CircularProgressIndicator(
-                color: Color(0xFFC84C00),
+                color: VelixPalette.copper,
                 strokeWidth: 3,
               ),
             ],

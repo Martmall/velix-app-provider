@@ -20,12 +20,12 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     final fleetAsync = ref.watch(partnerFleetProvider);
     var cars = fleetAsync.valueOrNull ?? [];
@@ -97,7 +97,7 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFC84C00), width: 1.5),
+                        borderSide: const BorderSide(color: VelixPalette.copper, width: 1.5),
                       ),
                     ),
                   ),
@@ -134,7 +134,7 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
                               width: 72,
                               height: 72,
                               decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6),
+                                color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.directions_car_outlined, size: 36, color: subtextColor),
@@ -208,10 +208,10 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFC84C00) : cardBg,
+          color: isSelected ? VelixPalette.copper : cardBg,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFFC84C00) : borderColor,
+            color: isSelected ? VelixPalette.copper : borderColor,
           ),
         ),
         child: Text(
@@ -219,7 +219,7 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF374151)),
+            color: isSelected ? VelixPalette.paper : (isDark ? Colors.white70 : VelixPalette.muted),
           ),
         ),
       ),
@@ -256,7 +256,7 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
                     height: 150,
-                    color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6),
+                    color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
                     child: Center(
                       child: Icon(Icons.directions_car, size: 80, color: subtextColor),
                     ),
@@ -269,12 +269,12 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: item.isAvailable ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                    color: item.isAvailable ? VelixPalette.go : VelixPalette.brass,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     item.isAvailable ? 'Available' : 'Booked',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: VelixPalette.paper),
                   ),
                 ),
               ),
@@ -299,7 +299,7 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
                     const SizedBox(width: 8),
                     Text(
                       '₦${item.pricePerDay.toStringAsFixed(0)}/day',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                     ),
                   ],
                 ),
@@ -324,10 +324,10 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () => context.go(AppRoutes.addVehicle, extra: item),
-                        icon: const Icon(Icons.edit_outlined, size: 16, color: Colors.white),
-                        label: const Text('Edit', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                        icon: const Icon(Icons.edit_outlined, size: 16, color: VelixPalette.paper),
+                        label: const Text('Edit', style: TextStyle(fontWeight: FontWeight.bold, color: VelixPalette.paper)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFC84C00),
+                          backgroundColor: VelixPalette.copper,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -360,19 +360,19 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFEF4444),
+                                    backgroundColor: VelixPalette.claim,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                   ),
-                                  child: const Text('Remove', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  child: const Text('Remove', style: TextStyle(color: VelixPalette.paper, fontWeight: FontWeight.bold)),
                                 ),
                               ],
                             ),
                           );
                         },
-                        icon: const Icon(Icons.delete_outline, size: 16, color: Color(0xFFEF4444)),
-                        label: const Text('Remove', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
+                        icon: const Icon(Icons.delete_outline, size: 16, color: VelixPalette.claim),
+                        label: const Text('Remove', style: TextStyle(fontWeight: FontWeight.bold, color: VelixPalette.claim)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark ? const Color(0xFF331616) : const Color(0xFFFEE2E2),
+                          backgroundColor: isDark ? VelixPalette.nightClaimSoft : VelixPalette.claimSoft,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -393,7 +393,7 @@ class _MyVehiclesScreenState extends ConsumerState<MyVehiclesScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6),
+        color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

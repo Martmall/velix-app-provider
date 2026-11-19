@@ -1,35 +1,42 @@
 import 'package:flutter/material.dart';
 
+import '../theme/velix_palette.dart';
+
+/// Legacy colour names, kept so existing screens compile. Each now points at a Velix token
+/// (DESIGN.md). The "dark" names were the old dark-scheme surfaces and map to night tokens.
+/// New code should use `Theme.of(context).colorScheme`, `VelixColors.of(context)` or
+/// [VelixPalette] directly.
 class AppColors {
-  static const Color primary = Color(0xFF2F6FED);
-  static const Color primaryDark = Color(0xFF1E52C1);
-  static const Color primaryLight = Color(0xFF6395FF);
+  static const Color primary = VelixPalette.copper;
+  static const Color primaryDark = VelixPalette.onCopperSoft;
+  static const Color primaryLight = VelixPalette.nightCopper;
 
-  static const Color backgroundDark = Color(0xFF0D0F17);
-  static const Color cardDark = Color(0xFF161922);
-  static const Color cardDarkElevated = Color(0xFF1E222D);
-  static const Color inputBackground = Color(0xFF1C202C);
+  static const Color backgroundDark = VelixPalette.nightStone;
+  static const Color cardDark = VelixPalette.nightPaper;
+  static const Color cardDarkElevated = VelixPalette.nightStone3;
+  static const Color inputBackground = VelixPalette.nightStone2;
 
-  static const Color success = Color(0xFF10B981);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color success = VelixPalette.go;
+  static const Color warning = VelixPalette.brass;
+  static const Color error = VelixPalette.claim;
+  static const Color info = VelixPalette.ink;
 
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFF9CA3AF);
-  static const Color textMuted = Color(0xFF6B7280);
+  static const Color textPrimary = VelixPalette.nightInk;
+  static const Color textSecondary = VelixPalette.nightMuted;
+  static const Color textMuted = VelixPalette.nightLineStrong;
 
-  static const Color border = Color(0xFF262B38);
-  static const Color divider = Color(0xFF1F2430);
+  static const Color border = VelixPalette.nightLine;
+  static const Color divider = VelixPalette.nightLine;
 
+  // Velix has no gradients; these stay as flat copper / night surfaces for old callers.
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF2F6FED), Color(0xFF1E52C1)],
+    colors: [VelixPalette.copper, VelixPalette.copper],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0xFF1C202C), Color(0xFF141722)],
+    colors: [VelixPalette.nightPaper, VelixPalette.nightPaper],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/routing/routes.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class DevPreviewScreen extends StatefulWidget {
   const DevPreviewScreen({super.key});
 
@@ -67,27 +68,27 @@ class _DevPreviewScreenState extends State<DevPreviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C1830),
+      backgroundColor: VelixPalette.ink,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0C1830),
+        backgroundColor: VelixPalette.ink,
         elevation: 0,
         title: Row(
           children: [
             const Text(
               'Velix Partner App — Developer Preview',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: VelixPalette.paper),
             ),
             const Spacer(),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFC84C00).withValues(alpha: 0.2),
+                color: VelixPalette.copper.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFC84C00)),
+                border: Border.all(color: VelixPalette.copper),
               ),
               child: const Text(
                 '18 Screens Verified',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: VelixPalette.copper),
               ),
             ),
           ],
@@ -101,21 +102,21 @@ class _DevPreviewScreenState extends State<DevPreviewScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: (val) => setState(() => _filter = val.toLowerCase()),
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(color: VelixPalette.paper, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Search 18 partner screens...',
-                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
+                hintStyle: const TextStyle(color: VelixPalette.lineStrong, fontSize: 13),
+                prefixIcon: const Icon(Icons.search, color: VelixPalette.lineStrong),
                 filled: true,
-                fillColor: const Color(0xFF1E293B),
+                fillColor: VelixPalette.nightPaper,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF334155)),
+                  borderSide: const BorderSide(color: VelixPalette.nightLine),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF334155)),
+                  borderSide: const BorderSide(color: VelixPalette.nightLine),
                 ),
               ),
             ),
@@ -169,41 +170,41 @@ class _DevPreviewScreenState extends State<DevPreviewScreen> {
                       padding: const EdgeInsets.only(top: 12, bottom: 8),
                       child: Row(
                         children: [
-                          Icon(section['icon'] as IconData, size: 18, color: const Color(0xFFC84C00)),
+                          Icon(section['icon'] as IconData, size: 18, color: VelixPalette.copper),
                           const SizedBox(width: 8),
                           Text(
                             section['category'] as String,
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFFC84C00),
+                              color: VelixPalette.copper,
                               letterSpacing: 0.5,
                             ),
                           ),
                           const Spacer(),
                           Text(
                             '${filteredScreens.length} Screens',
-                            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                            style: const TextStyle(fontSize: 11, color: VelixPalette.muted),
                           ),
                         ],
                       ),
                     ),
                     ...filteredScreens.map((item) {
                       return Card(
-                        color: const Color(0xFF1E293B),
+                        color: VelixPalette.nightPaper,
                         margin: const EdgeInsets.only(bottom: 8),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         child: ListTile(
                           leading: Icon(item['icon'] as IconData, color: Colors.white70, size: 20),
                           title: Text(
                             item['title'] as String,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
+                            style: const TextStyle(color: VelixPalette.paper, fontWeight: FontWeight.w600, fontSize: 13),
                           ),
                           subtitle: Text(
                             item['route'] as String,
-                            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                            style: const TextStyle(color: VelixPalette.lineStrong, fontSize: 11),
                           ),
-                          trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xFFC84C00), size: 14),
+                          trailing: const Icon(Icons.arrow_forward_ios, color: VelixPalette.copper, size: 14),
                           onTap: () => context.go(item['route'] as String),
                         ),
                       );
@@ -226,12 +227,12 @@ class _DevPreviewScreenState extends State<DevPreviewScreen> {
         style: TextStyle(
           fontSize: 12,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+          color: isSelected ? VelixPalette.paper : VelixPalette.lineStrong,
         ),
       ),
       selected: isSelected,
-      selectedColor: const Color(0xFFC84C00),
-      backgroundColor: const Color(0xFF1E293B),
+      selectedColor: VelixPalette.copper,
+      backgroundColor: VelixPalette.nightPaper,
       onSelected: (_) => setState(() => _selectedCategory = id),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class CountryCode {
   final String name;
   final String code;
@@ -79,11 +80,11 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     return Container(
       constraints: BoxConstraints(
@@ -109,7 +110,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                  color: isDark ? VelixPalette.nightLineStrong : VelixPalette.line,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -166,7 +167,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected ? const Color(0xFFC84C00) : textColor,
+                              color: isSelected ? VelixPalette.copper : textColor,
                             ),
                           ),
                           trailing: Row(
@@ -177,12 +178,12 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: isSelected ? const Color(0xFFC84C00) : subtextColor,
+                                  color: isSelected ? VelixPalette.copper : subtextColor,
                                 ),
                               ),
                               if (isSelected) ...[
                                 const SizedBox(width: 8),
-                                const Icon(Icons.check, color: Color(0xFFC84C00), size: 18),
+                                const Icon(Icons.check, color: VelixPalette.copper, size: 18),
                               ],
                             ],
                           ),

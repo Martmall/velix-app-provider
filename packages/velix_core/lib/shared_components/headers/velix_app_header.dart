@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class VelixAppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String subtitle;
@@ -40,11 +41,11 @@ class VelixAppHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final headerBg = isDark ? const Color(0xFF11141D) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-    final borderColor = isDark ? const Color(0xFF262C38) : const Color(0xFFE2E8F0);
-    const accentOrange = Color(0xFFC84C00);
+    final headerBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    const accentOrange = VelixPalette.copper;
 
     final displayName = (userName != null && userName!.isNotEmpty) ? userName! : 'Velix Member';
     final initials = displayName
@@ -105,7 +106,7 @@ class VelixAppHeader extends StatelessWidget implements PreferredSizeWidget {
                     errorBuilder: (_, __, ___) => Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFFC84C00), Color(0xFFE8590C)],
+                          colors: [VelixPalette.copper, VelixPalette.copper],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -116,7 +117,7 @@ class VelixAppHeader extends StatelessWidget implements PreferredSizeWidget {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: VelixPalette.paper,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -244,7 +245,7 @@ class VelixAppHeader extends StatelessWidget implements PreferredSizeWidget {
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: VelixPalette.paper,
                                   ),
                                 )
                               : null,
@@ -274,7 +275,7 @@ class VelixAppHeader extends StatelessWidget implements PreferredSizeWidget {
                           ),
                         ),
                         if (isVerified)
-                          const Icon(Icons.verified_rounded, size: 16, color: Color(0xFF10B981)),
+                          const Icon(Icons.verified_rounded, size: 16, color: VelixPalette.go),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -328,14 +329,14 @@ class VelixAppHeader extends StatelessWidget implements PreferredSizeWidget {
                 value: 'logout',
                 child: Row(
                   children: [
-                    Icon(Icons.logout_rounded, size: 18, color: Color(0xFFEF4444)),
+                    Icon(Icons.logout_rounded, size: 18, color: VelixPalette.claim),
                     SizedBox(width: 12),
                     Text(
                       'Log Out',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFEF4444),
+                        color: VelixPalette.claim,
                       ),
                     ),
                   ],
@@ -362,7 +363,7 @@ class VelixAppHeader extends StatelessWidget implements PreferredSizeWidget {
                         initials.isNotEmpty ? initials : 'U',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.white,
+                          color: VelixPalette.paper,
                           fontWeight: FontWeight.bold,
                         ),
                       )
