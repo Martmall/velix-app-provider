@@ -3,20 +3,23 @@ import 'app_colors.dart';
 
 class AppTextStyles {
   static const TextStyle heading1 = TextStyle(
+    fontFamily: 'packages/velix_core/HankenGrotesk',
     fontSize: 28,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w800,
     color: AppColors.textPrimary,
     height: 1.2,
   );
 
   static const TextStyle heading2 = TextStyle(
+    fontFamily: 'packages/velix_core/HankenGrotesk',
     fontSize: 22,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w800,
     color: AppColors.textPrimary,
     height: 1.3,
   );
 
   static const TextStyle heading3 = TextStyle(
+    fontFamily: 'packages/velix_core/HankenGrotesk',
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -24,30 +27,35 @@ class AppTextStyles {
   );
 
   static const TextStyle bodyLarge = TextStyle(
+    fontFamily: 'packages/velix_core/HankenGrotesk',
     fontSize: 16,
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
   );
 
   static const TextStyle bodyMedium = TextStyle(
+    fontFamily: 'packages/velix_core/HankenGrotesk',
     fontSize: 14,
     fontWeight: FontWeight.normal,
     color: AppColors.textSecondary,
   );
 
   static const TextStyle bodySmall = TextStyle(
+    fontFamily: 'packages/velix_core/HankenGrotesk',
     fontSize: 12,
     fontWeight: FontWeight.normal,
     color: AppColors.textMuted,
   );
 
   static const TextStyle buttonText = TextStyle(
+    fontFamily: 'packages/velix_core/HankenGrotesk',
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );
 
   static const TextStyle caption = TextStyle(
+    fontFamily: 'packages/velix_core/HankenGrotesk',
     fontSize: 11,
     fontWeight: FontWeight.w500,
     color: AppColors.textMuted,

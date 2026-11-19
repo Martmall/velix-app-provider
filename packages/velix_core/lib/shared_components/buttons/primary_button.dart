@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class PrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -40,7 +41,7 @@ class PrimaryButton extends StatelessWidget {
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: VelixPalette.paper,
                   strokeWidth: 2.5,
                 ),
               )
@@ -48,7 +49,7 @@ class PrimaryButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, color: Colors.white, size: 20),
+                    Icon(icon, color: VelixPalette.paper, size: 20),
                     const SizedBox(width: 8),
                   ],
                   Text(text, style: AppTextStyles.buttonText),

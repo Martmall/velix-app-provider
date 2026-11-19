@@ -11,12 +11,12 @@ class VerifyPickup1Screen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final innerBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final innerBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     final bookingsAsync = ref.watch(partnerBookingsProvider);
 
@@ -58,7 +58,7 @@ class VerifyPickup1Screen extends ConsumerWidget {
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(color: Color(0xFFC84C00), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(color: VelixPalette.copper, shape: BoxShape.circle),
                 ),
               ),
             ],
@@ -75,19 +75,19 @@ class VerifyPickup1Screen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2D1E16) : const Color(0xFFFDF0E9),
+                color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFCD34D).withValues(alpha: isDark ? 0.3 : 0.5)),
+                border: Border.all(color: VelixPalette.amberSoft.withValues(alpha: isDark ? 0.3 : 0.5)),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF422616) : const Color(0xFFFDE68A),
+                      color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.amberSoft,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.access_time_filled, color: Color(0xFFC84C00), size: 20),
+                    child: const Icon(Icons.access_time_filled, color: VelixPalette.copper, size: 20),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -115,7 +115,7 @@ class VerifyPickup1Screen extends ConsumerWidget {
               loading: () => const Center(
                 child: Padding(
                   padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(color: Color(0xFFC84C00)),
+                  child: CircularProgressIndicator(color: VelixPalette.copper),
                 ),
               ),
               error: (_, __) => _buildEmptyState(context, cardBg, borderColor, textColor, subtextColor, isDark),
@@ -142,13 +142,13 @@ class VerifyPickup1Screen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF2D1E16) : const Color(0xFFFDF0E9),
+                            color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFFCD34D).withValues(alpha: 0.5)),
+                            border: Border.all(color: VelixPalette.amberSoft.withValues(alpha: 0.5)),
                           ),
                           child: Text(
                             '${pendingPickups.length} Pending',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                           ),
                         ),
                       ],
@@ -213,10 +213,10 @@ class VerifyPickup1Screen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9),
+              color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.car_rental_outlined, size: 40, color: Color(0xFFC84C00)),
+            child: const Icon(Icons.car_rental_outlined, size: 40, color: VelixPalette.copper),
           ),
           const SizedBox(height: 16),
           Text(
@@ -233,13 +233,13 @@ class VerifyPickup1Screen extends ConsumerWidget {
           ElevatedButton(
             onPressed: () => context.go(AppRoutes.partnerBookings),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFC84C00),
+              backgroundColor: VelixPalette.copper,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
             child: const Text(
               'View All Bookings',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+              style: TextStyle(color: VelixPalette.paper, fontWeight: FontWeight.bold, fontSize: 13),
             ),
           ),
         ],
@@ -287,7 +287,7 @@ class VerifyPickup1Screen extends ConsumerWidget {
                       width: 50,
                       height: 40,
                       color: innerBg,
-                      child: const Icon(Icons.directions_car, color: Color(0xFFC84C00)),
+                      child: const Icon(Icons.directions_car, color: VelixPalette.copper),
                     ),
                   ),
                 ),

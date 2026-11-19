@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../network/upload_file.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 /// Lets the user pick a photo (camera/gallery) or a document, and returns it as an [UploadFile].
 /// Picking only -- the caller uploads it to the endpoint that fits (vehicle photos, verification
 /// documents, ...), so nothing is reported as "uploaded" before the server has actually accepted it.
@@ -149,7 +150,7 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error selecting file: $e'),
-            backgroundColor: Colors.red.shade800,
+            backgroundColor: VelixPalette.claim,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -164,9 +165,9 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final titleColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final titleColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
 
     return Container(
       decoration: BoxDecoration(
@@ -184,7 +185,7 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                  color: isDark ? VelixPalette.nightLineStrong : VelixPalette.line,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -202,7 +203,7 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.close, size: 20, color: isDark ? Colors.white70 : const Color(0xFF6B7280)),
+                  icon: Icon(Icons.close, size: 20, color: isDark ? Colors.white70 : VelixPalette.muted),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -214,11 +215,11 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                 alignment: Alignment.center,
                 child: const Column(
                   children: [
-                    CircularProgressIndicator(color: Color(0xFFC84C00)),
+                    CircularProgressIndicator(color: VelixPalette.copper),
                     SizedBox(height: 12),
                     Text(
                       'Uploading file...',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF6B7280), fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 13, color: VelixPalette.muted, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -235,17 +236,17 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9),
+                              color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFC84C00).withValues(alpha: 0.4)),
+                              border: Border.all(color: VelixPalette.copper.withValues(alpha: 0.4)),
                             ),
                             child: const Column(
                               children: [
-                                Icon(Icons.camera_alt, color: Color(0xFFC84C00), size: 28),
+                                Icon(Icons.camera_alt, color: VelixPalette.copper, size: 28),
                                 SizedBox(height: 6),
                                 Text(
                                   'Take Photo',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                                 ),
                               ],
                             ),
@@ -260,17 +261,17 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6),
+                              color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(color: borderColor),
                             ),
                             child: Column(
                               children: [
-                                Icon(Icons.photo_library, color: isDark ? Colors.white : const Color(0xFF0C1830), size: 28),
+                                Icon(Icons.photo_library, color: isDark ? VelixPalette.paper : VelixPalette.ink, size: 28),
                                 const SizedBox(height: 6),
                                 Text(
                                   'Photo Gallery',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF0C1830)),
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? VelixPalette.paper : VelixPalette.ink),
                                 ),
                               ],
                             ),
@@ -289,18 +290,18 @@ class _ImagePickerSheetState extends State<_ImagePickerSheet> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF9FAFB),
+                          color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: borderColor),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.picture_as_pdf, color: Color(0xFFEF4444), size: 22),
+                            const Icon(Icons.picture_as_pdf, color: VelixPalette.claim, size: 22),
                             const SizedBox(width: 10),
                             Text(
                               'Choose PDF / File from Device Storage',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF0C1830)),
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? VelixPalette.paper : VelixPalette.ink),
                             ),
                           ],
                         ),

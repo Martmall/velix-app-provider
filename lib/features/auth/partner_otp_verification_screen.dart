@@ -87,9 +87,9 @@ class _PartnerOtpVerificationScreenState extends ConsumerState<PartnerOtpVerific
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0A0C10) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF6B7280);
+    final bgColor = isDark ? VelixPalette.nightStone : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -123,7 +123,7 @@ class _PartnerOtpVerificationScreenState extends ConsumerState<PartnerOtpVerific
               width: 110,
               height: 110,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9),
+                color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -131,10 +131,10 @@ class _PartnerOtpVerificationScreenState extends ConsumerState<PartnerOtpVerific
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF78350F) : const Color(0xFFFDE68A),
+                    color: isDark ? VelixPalette.nightAmberSoft : VelixPalette.amberSoft,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.shield_outlined, color: Color(0xFFC84C00), size: 40),
+                  child: const Icon(Icons.shield_outlined, color: VelixPalette.copper, size: 40),
                 ),
               ),
             ),
@@ -157,7 +157,7 @@ class _PartnerOtpVerificationScreenState extends ConsumerState<PartnerOtpVerific
                   children: [
                     TextSpan(
                       text: _email.isNotEmpty ? _email : 'your email',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: VelixPalette.copper),
                     ),
                     const TextSpan(text: '. Enter it below to access your host portal.'),
                   ],
@@ -169,10 +169,10 @@ class _PartnerOtpVerificationScreenState extends ConsumerState<PartnerOtpVerific
             // Clean 6-digit PIN Input with crisp numbers
             OtpPinInput(
               length: 6,
-              fillColor: isDark ? const Color(0xFF161922) : const Color(0xFFF9FAFB),
+              fillColor: isDark ? VelixPalette.nightPaper : VelixPalette.stone,
               textColor: textColor,
-              borderColor: isDark ? const Color(0xFF262B38) : const Color(0xFF9CA3AF),
-              activeBorderColor: const Color(0xFFC84C00),
+              borderColor: isDark ? VelixPalette.nightLine : VelixPalette.lineStrong,
+              activeBorderColor: VelixPalette.copper,
               onCompleted: (val) {
                 setState(() => _otp = val);
               },
@@ -193,14 +193,14 @@ class _PartnerOtpVerificationScreenState extends ConsumerState<PartnerOtpVerific
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: _canResend ? const Color(0xFFC84C00) : subtextColor.withValues(alpha: 0.5),
+                      color: _canResend ? VelixPalette.copper : subtextColor.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6),
+                    color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -208,7 +208,7 @@ class _PartnerOtpVerificationScreenState extends ConsumerState<PartnerOtpVerific
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: _canResend ? const Color(0xFF10B981) : subtextColor,
+                      color: _canResend ? VelixPalette.go : subtextColor,
                     ),
                   ),
                 ),

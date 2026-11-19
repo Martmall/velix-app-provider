@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class LegalTermsModal extends StatelessWidget {
   final String title;
   final String content;
@@ -86,10 +87,10 @@ You have the right to request access to your stored personal data, request corre
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF4B5563);
-    final cardBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF9FAFB);
+    final bgColor = isDark ? VelixPalette.nightStone : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.stone;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.82,
@@ -105,7 +106,7 @@ You have the right to request access to your stored personal data, request corre
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+              color: isDark ? VelixPalette.nightLine : VelixPalette.line,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -144,7 +145,7 @@ You have the right to request access to your stored personal data, request corre
                   color: cardBg,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                    color: isDark ? VelixPalette.nightLine : VelixPalette.line,
                   ),
                 ),
                 child: Text(
@@ -166,7 +167,7 @@ You have the right to request access to your stored personal data, request corre
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC84C00),
+                  backgroundColor: VelixPalette.copper,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -175,7 +176,7 @@ You have the right to request access to your stored personal data, request corre
                 child: const Text(
                   'I Understand & Accept',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: VelixPalette.paper,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),

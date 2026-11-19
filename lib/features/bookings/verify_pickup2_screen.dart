@@ -58,12 +58,12 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final innerBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final innerBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     final allBookings = ref.watch(partnerBookingsProvider).value ?? [];
     final booking = widget.booking ?? allBookings.where((b) => b.status == BookingStatus.confirmed).firstOrNull;
@@ -112,7 +112,7 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(color: Color(0xFFC84C00), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(color: VelixPalette.copper, shape: BoxShape.circle),
                 ),
               ),
             ],
@@ -207,10 +207,10 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFC84C00).withValues(alpha: isDark ? 0.2 : 0.1),
+                      color: VelixPalette.copper.withValues(alpha: isDark ? 0.2 : 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.pin_outlined, color: Color(0xFFC84C00), size: 30),
+                    child: const Icon(Icons.pin_outlined, color: VelixPalette.copper, size: 30),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -246,7 +246,7 @@ class _VerifyPickup2ScreenState extends ConsumerState<VerifyPickup2Screen> {
                             contentPadding: EdgeInsets.zero,
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFC84C00), width: 2)),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: VelixPalette.copper, width: 2)),
                           ),
                           onChanged: (val) {
                             if (val.isNotEmpty && index < 5) {

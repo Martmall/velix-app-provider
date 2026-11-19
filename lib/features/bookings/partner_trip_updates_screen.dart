@@ -18,11 +18,11 @@ class _PartnerTripUpdatesScreenState extends ConsumerState<PartnerTripUpdatesScr
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
 
     final bookingsAsync = ref.watch(partnerBookingsProvider);
 
@@ -57,7 +57,7 @@ class _PartnerTripUpdatesScreenState extends ConsumerState<PartnerTripUpdatesScr
       ),
       body: SafeArea(
         child: bookingsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFFC84C00))),
+          loading: () => const Center(child: CircularProgressIndicator(color: VelixPalette.copper)),
           error: (_, __) => _buildTripUpdatesContent([], isDark, cardBg, textColor, subtextColor, borderColor),
           data: (bookings) => _buildTripUpdatesContent(bookings, isDark, cardBg, textColor, subtextColor, borderColor),
         ),
@@ -116,7 +116,7 @@ class _PartnerTripUpdatesScreenState extends ConsumerState<PartnerTripUpdatesScr
                           width: 72,
                           height: 72,
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6),
+                            color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(Icons.notifications_none, size: 36, color: subtextColor),
@@ -162,10 +162,10 @@ class _PartnerTripUpdatesScreenState extends ConsumerState<PartnerTripUpdatesScr
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFECFDF5),
+                                  color: VelixPalette.goSoft,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
-                                child: const Text('ONGOING TRIP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+                                child: const Text('ONGOING TRIP', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: VelixPalette.go)),
                               ),
                             ],
                           ),
@@ -178,11 +178,11 @@ class _PartnerTripUpdatesScreenState extends ConsumerState<PartnerTripUpdatesScr
                                 child: ElevatedButton(
                                   onPressed: () => context.go(AppRoutes.verifyReturn1),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFC84C00),
+                                    backgroundColor: VelixPalette.copper,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Initiate Return Inspection', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                  child: const Text('Initiate Return Inspection', style: TextStyle(color: VelixPalette.paper, fontSize: 12, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -204,16 +204,16 @@ class _PartnerTripUpdatesScreenState extends ConsumerState<PartnerTripUpdatesScr
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFC84C00) : cardBg,
+          color: isSelected ? VelixPalette.copper : cardBg,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? const Color(0xFFC84C00) : borderColor),
+          border: Border.all(color: isSelected ? VelixPalette.copper : borderColor),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF374151)),
+            color: isSelected ? VelixPalette.paper : (isDark ? Colors.white70 : VelixPalette.muted),
           ),
         ),
       ),

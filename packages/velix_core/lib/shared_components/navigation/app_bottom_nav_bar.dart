@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -15,10 +16,10 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final navBg = isDark ? const Color(0xFF11141D) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF262C38) : const Color(0xFFE2E8F0);
-    const accentColor = Color(0xFFC84C00);
-    final unselectedColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final navBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    const accentColor = VelixPalette.copper;
+    final unselectedColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
 
     final partnerItems = [
       const _NavItem(

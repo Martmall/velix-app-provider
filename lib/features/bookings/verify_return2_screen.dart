@@ -49,12 +49,12 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final innerBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final innerBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     final allBookings = ref.watch(partnerBookingsProvider).value ?? [];
     final booking = widget.booking ?? allBookings.where((b) => b.status == BookingStatus.active).firstOrNull;
@@ -103,7 +103,7 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(color: Color(0xFFC84C00), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(color: VelixPalette.copper, shape: BoxShape.circle),
                 ),
               ),
             ],
@@ -136,10 +136,10 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => CircleAvatar(
                             radius: 20,
-                            backgroundColor: const Color(0xFFDBEAFE),
+                            backgroundColor: VelixPalette.stone2,
                             child: Text(
                               customerName.isNotEmpty ? customerName[0] : 'C',
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF2563EB)),
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: VelixPalette.ink),
                             ),
                           ),
                         ),
@@ -201,10 +201,10 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2563EB).withValues(alpha: isDark ? 0.2 : 0.1),
+                          color: VelixPalette.ink.withValues(alpha: isDark ? 0.2 : 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.fact_check_outlined, color: Color(0xFF2563EB), size: 22),
+                        child: const Icon(Icons.fact_check_outlined, color: VelixPalette.ink, size: 22),
                       ),
                       const SizedBox(width: 10),
                       Text(
@@ -218,7 +218,7 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
                     title: Text('No New Physical Damage', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor)),
                     subtitle: Text('Exterior and interior are in good condition', style: TextStyle(fontSize: 11, color: subtextColor)),
                     value: _noDamage,
-                    activeThumbColor: const Color(0xFF10B981),
+                    activeThumbColor: VelixPalette.go,
                     contentPadding: EdgeInsets.zero,
                     onChanged: (v) => setState(() => _noDamage = v),
                   ),
@@ -227,7 +227,7 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
                     title: Text('Fuel Level Checked & OK', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor)),
                     subtitle: Text('Fuel gauge matches dispatch level', style: TextStyle(fontSize: 11, color: subtextColor)),
                     value: _fuelOk,
-                    activeThumbColor: const Color(0xFF10B981),
+                    activeThumbColor: VelixPalette.go,
                     contentPadding: EdgeInsets.zero,
                     onChanged: (v) => setState(() => _fuelOk = v),
                   ),
@@ -237,7 +237,7 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
                     child: ElevatedButton(
                       onPressed: () => _confirmReturn(booking),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2563EB),
+                        backgroundColor: VelixPalette.ink,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
@@ -245,11 +245,11 @@ class _VerifyReturn2ScreenState extends ConsumerState<VerifyReturn2Screen> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              child: CircularProgressIndicator(color: VelixPalette.paper, strokeWidth: 2),
                             )
                           : const Text(
                               'Complete Return & Close Rental',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: VelixPalette.paper),
                             ),
                     ),
                   ),

@@ -20,10 +20,10 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
 
   void _showNewDisputeModal(List<BookingModel> bookings) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     if (bookings.isEmpty) {
       VelixToast.showInfo(context, 'Disputes are raised on a booking. Use the support form below for anything else.');
@@ -64,7 +64,7 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Submit Damage / Dispute Claim', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor)),
-                      IconButton(icon: Icon(Icons.close, color: isDark ? Colors.white70 : const Color(0xFF6B7280)), onPressed: () => Navigator.pop(context)),
+                      IconButton(icon: Icon(Icons.close, color: isDark ? Colors.white70 : VelixPalette.muted), onPressed: () => Navigator.pop(context)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -116,7 +116,7 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                     style: TextStyle(color: textColor, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'e.g. 45000',
-                      hintStyle: TextStyle(color: isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                      hintStyle: TextStyle(color: isDark ? Colors.white38 : VelixPalette.lineStrong),
                       filled: true,
                       fillColor: inputBg,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -133,7 +133,7 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                     style: TextStyle(color: textColor, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Provide details regarding the claim...',
-                      hintStyle: TextStyle(color: isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                      hintStyle: TextStyle(color: isDark ? Colors.white38 : VelixPalette.lineStrong),
                       filled: true,
                       fillColor: inputBg,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -158,7 +158,7 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                         children: [
                           const Icon(
                             Icons.camera_alt,
-                            color: Color(0xFFC84C00),
+                            color: VelixPalette.copper,
                             size: 20,
                           ),
                           const SizedBox(width: 10),
@@ -256,12 +256,12 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF4F6F9);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     final bookingsAsync = ref.watch(partnerBookingsProvider);
     final bookings = bookingsAsync.valueOrNull ?? [];
@@ -308,8 +308,8 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                   onTap: () => _showNewDisputeModal(bookings),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(color: const Color(0xFFC84C00), borderRadius: BorderRadius.circular(16)),
-                    child: const Text('+ New Claim', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                    decoration: BoxDecoration(color: VelixPalette.copper, borderRadius: BorderRadius.circular(16)),
+                    child: const Text('+ New Claim', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.paper)),
                   ),
                 ),
               ],
@@ -355,7 +355,7 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(dsp.reason, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textColor)),
-                            Text('₦${dsp.claimAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+                            Text('₦${dsp.claimAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -365,8 +365,8 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                         const SizedBox(height: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(color: const Color(0xFFFFFBEB), borderRadius: BorderRadius.circular(6), border: Border.all(color: const Color(0xFFFCD34D))),
-                          child: Text('Status: ${dsp.status.name.toUpperCase()}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+                          decoration: BoxDecoration(color: VelixPalette.amberSoft, borderRadius: BorderRadius.circular(6), border: Border.all(color: VelixPalette.amberSoft)),
+                          child: Text('Status: ${dsp.status.name.toUpperCase()}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: VelixPalette.onAmberSoft)),
                         ),
                       ],
                     ),
@@ -390,7 +390,7 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                     style: TextStyle(color: textColor, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Subject / Category (optional)...',
-                      hintStyle: TextStyle(color: isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                      hintStyle: TextStyle(color: isDark ? Colors.white38 : VelixPalette.lineStrong),
                       filled: true,
                       fillColor: inputBg,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -405,7 +405,7 @@ class _SupportDisputesScreenState extends ConsumerState<SupportDisputesScreen> {
                     style: TextStyle(color: textColor, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Type your message or inquiry...',
-                      hintStyle: TextStyle(color: isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                      hintStyle: TextStyle(color: isDark ? Colors.white38 : VelixPalette.lineStrong),
                       filled: true,
                       fillColor: inputBg,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

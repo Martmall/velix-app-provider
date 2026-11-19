@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class OnboardingHero4Widget extends StatelessWidget {
   const OnboardingHero4Widget({super.key});
 
@@ -16,7 +17,7 @@ class OnboardingHero4Widget extends StatelessWidget {
             width: 260,
             height: 260,
             decoration: const BoxDecoration(
-              color: Color(0xFFFDF0E9),
+              color: VelixPalette.copperSoft,
               shape: BoxShape.circle,
             ),
           ),
@@ -27,7 +28,7 @@ class OnboardingHero4Widget extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: const Color(0xFFC84C00).withValues(alpha: 0.1),
+                color: VelixPalette.copper.withValues(alpha: 0.1),
                 width: 2,
               ),
             ),
@@ -45,7 +46,7 @@ class OnboardingHero4Widget extends StatelessWidget {
       height: 250,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFF0C1830),
+        color: VelixPalette.ink,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
@@ -58,7 +59,7 @@ class OnboardingHero4Widget extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(22),
         child: Container(
-          color: const Color(0xFFF8F9FA),
+          color: VelixPalette.stone,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +69,7 @@ class OnboardingHero4Widget extends StatelessWidget {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0C1830),
+                    color: VelixPalette.ink,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -79,33 +80,33 @@ class OnboardingHero4Widget extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.arrow_back_ios, size: 10, color: Color(0xFF0C1830)),
+                      Icon(Icons.arrow_back_ios, size: 10, color: VelixPalette.ink),
                       SizedBox(width: 2),
                       Text(
                         'My Earnings',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF0C1830),
+                          color: VelixPalette.ink,
                         ),
                       ),
                     ],
                   ),
                   CircleAvatar(
                     radius: 8,
-                    backgroundColor: Color(0xFFC84C00),
-                    child: Text('JD', style: TextStyle(fontSize: 6, color: Colors.white, fontWeight: FontWeight.bold)),
+                    backgroundColor: VelixPalette.copper,
+                    child: Text('JD', style: TextStyle(fontSize: 6, color: VelixPalette.paper, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
               const SizedBox(height: 6),
-              const Text('Thursday, 16 May', style: TextStyle(fontSize: 6, color: Color(0xFF6B7280))),
-              const Text('Welcome back, John', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0C1830))),
+              const Text('Thursday, 16 May', style: TextStyle(fontSize: 6, color: VelixPalette.muted)),
+              const Text('Welcome back, John', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: VelixPalette.ink)),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0C1830),
+                  color: VelixPalette.ink,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Column(
@@ -113,14 +114,14 @@ class OnboardingHero4Widget extends StatelessWidget {
                   children: [
                     Text('Total Earnings', style: TextStyle(fontSize: 7, color: Colors.white70)),
                     SizedBox(height: 2),
-                    Text('₦2,450,000', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text('₦2,450,000', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: VelixPalette.paper)),
                     SizedBox(height: 2),
-                    Text('↗ +12.5% vs last month', style: TextStyle(fontSize: 6, color: Colors.lightGreenAccent, fontWeight: FontWeight.bold)),
+                    Text('↗ +12.5% vs last month', style: TextStyle(fontSize: 6, color: VelixPalette.nightGo, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Revenue Trend', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF0C1830))),
+              const Text('Revenue Trend', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: VelixPalette.ink)),
               const SizedBox(height: 4),
               SizedBox(
                 height: 35,
@@ -141,7 +142,7 @@ class _TrendChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFC84C00)
+      ..color = VelixPalette.copper
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
@@ -153,7 +154,7 @@ class _TrendChartPainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     final dotPaint = Paint()
-      ..color = const Color(0xFFC84C00)
+      ..color = VelixPalette.copper
       ..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(size.width, size.height * 0.2), 3, dotPaint);
   }

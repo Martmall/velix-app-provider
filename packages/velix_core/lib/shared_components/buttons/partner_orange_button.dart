@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class PartnerOrangeButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -24,8 +25,8 @@ class PartnerOrangeButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFC84C00), // Solid Orange/Terracotta accent matching design
-          disabledBackgroundColor: const Color(0xFFC84C00).withValues(alpha: 0.5),
+          backgroundColor: VelixPalette.copper, // Solid Orange/Terracotta accent matching design
+          disabledBackgroundColor: VelixPalette.copper.withValues(alpha: 0.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
@@ -36,7 +37,7 @@ class PartnerOrangeButton extends StatelessWidget {
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: VelixPalette.paper,
                   strokeWidth: 2.5,
                 ),
               )
@@ -48,7 +49,7 @@ class PartnerOrangeButton extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: VelixPalette.paper,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -56,13 +57,13 @@ class PartnerOrangeButton extends StatelessWidget {
                     width: 24,
                     height: 24,
                     decoration: const BoxDecoration(
-                      color: Colors.white,
+                      color: VelixPalette.paper,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.arrow_forward,
                       size: 14,
-                      color: Color(0xFFC84C00),
+                      color: VelixPalette.copper,
                     ),
                   ),
                 ],

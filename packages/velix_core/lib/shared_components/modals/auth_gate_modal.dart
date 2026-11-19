@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 /// Modal triggered when an unauthenticated guest user taps a protected feature (e.g. Booking, Wallet, Saved, KYC).
 class AuthGateModal {
   static Future<void> show({
@@ -10,9 +11,9 @@ class AuthGateModal {
     required VoidCallback onRegister,
   }) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF6B7280);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
 
     await showModalBottomSheet(
       context: context,
@@ -32,7 +33,7 @@ class AuthGateModal {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                  color: isDark ? VelixPalette.nightLineStrong : VelixPalette.line,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -42,13 +43,13 @@ class AuthGateModal {
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFC84C00).withValues(alpha: 0.12),
-                  border: Border.all(color: const Color(0xFFC84C00).withValues(alpha: 0.3)),
+                  color: VelixPalette.copper.withValues(alpha: 0.12),
+                  border: Border.all(color: VelixPalette.copper.withValues(alpha: 0.3)),
                 ),
                 child: const Icon(
                   Icons.lock_person_rounded,
                   size: 32,
-                  color: Color(0xFFC84C00),
+                  color: VelixPalette.copper,
                 ),
               ),
               const SizedBox(height: 16),
@@ -78,7 +79,7 @@ class AuthGateModal {
                   onSignIn();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC84C00),
+                  backgroundColor: VelixPalette.copper,
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
@@ -88,7 +89,7 @@ class AuthGateModal {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: VelixPalette.paper,
                   ),
                 ),
               ),
@@ -101,7 +102,7 @@ class AuthGateModal {
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                   side: BorderSide(
-                    color: isDark ? const Color(0xFF374151) : const Color(0xFFD1D5DB),
+                    color: isDark ? VelixPalette.nightMuted : VelixPalette.lineStrong,
                   ),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),

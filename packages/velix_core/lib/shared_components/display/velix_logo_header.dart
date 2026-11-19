@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 enum VelixLogoStyle {
   fullHorizontal,
   iconOnly,
@@ -23,7 +24,7 @@ class VelixLogoHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultTextColor = textColor ?? (isDark ? Colors.white : const Color(0xFF0C1830));
+    final defaultTextColor = textColor ?? (isDark ? VelixPalette.paper : VelixPalette.ink);
 
     if (style == VelixLogoStyle.iconOnly) {
       return Container(
@@ -33,7 +34,7 @@ class VelixLogoHeader extends StatelessWidget {
           borderRadius: BorderRadius.circular(height * 0.22),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFC84C00).withValues(alpha: 0.3),
+              color: VelixPalette.copper.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -69,7 +70,7 @@ class VelixLogoHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(height * 0.22),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFC84C00).withValues(alpha: 0.25),
+                    color: VelixPalette.copper.withValues(alpha: 0.25),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -130,7 +131,7 @@ class VelixLogoHeader extends StatelessWidget {
       height: size,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFFC84C00), Color(0xFFE8590C)],
+          colors: [VelixPalette.copper, VelixPalette.copper],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -139,7 +140,7 @@ class VelixLogoHeader extends StatelessWidget {
         child: Text(
           'V',
           style: TextStyle(
-            color: Colors.white,
+            color: VelixPalette.paper,
             fontWeight: FontWeight.w900,
             fontSize: 20,
           ),

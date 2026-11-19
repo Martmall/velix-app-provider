@@ -89,10 +89,10 @@ class _BankAccountSheetState extends ConsumerState<BankAccountSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final titleColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
-    final inputBg = isDark ? const Color(0xFF1F2430) : const Color(0xFFF9FAFB);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final titleColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
+    final inputBg = isDark ? VelixPalette.nightStone3 : VelixPalette.stone;
 
     return Container(
       decoration: BoxDecoration(
@@ -118,7 +118,7 @@ class _BankAccountSheetState extends ConsumerState<BankAccountSheet> {
                     width: 44,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                      color: isDark ? VelixPalette.nightLineStrong : VelixPalette.line,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -132,10 +132,10 @@ class _BankAccountSheetState extends ConsumerState<BankAccountSheet> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD1FAE5),
+                            color: VelixPalette.goSoft,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.account_balance, color: Color(0xFF10B981), size: 20),
+                          child: const Icon(Icons.account_balance, color: VelixPalette.go, size: 20),
                         ),
                         const SizedBox(width: 12),
                         Text(
@@ -145,7 +145,7 @@ class _BankAccountSheetState extends ConsumerState<BankAccountSheet> {
                       ],
                     ),
                     IconButton(
-                      icon: Icon(Icons.close, size: 20, color: isDark ? Colors.white70 : const Color(0xFF6B7280)),
+                      icon: Icon(Icons.close, size: 20, color: isDark ? Colors.white70 : VelixPalette.muted),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -153,7 +153,7 @@ class _BankAccountSheetState extends ConsumerState<BankAccountSheet> {
                 const SizedBox(height: 6),
                 Text(
                   'Add the bank account your withdrawals are paid into.',
-                  style: TextStyle(fontSize: 12, color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280)),
+                  style: TextStyle(fontSize: 12, color: isDark ? VelixPalette.nightMuted : VelixPalette.muted),
                 ),
                 const SizedBox(height: 20),
                 // Bank Selector
@@ -192,13 +192,13 @@ class _BankAccountSheetState extends ConsumerState<BankAccountSheet> {
                   decoration: InputDecoration(
                     counterText: '',
                     hintText: 'e.g. 0123456789',
-                    hintStyle: TextStyle(color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF)),
+                    hintStyle: TextStyle(color: isDark ? VelixPalette.nightMuted : VelixPalette.lineStrong),
                     filled: true,
                     fillColor: inputBg,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFC84C00), width: 1.5)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: VelixPalette.copper, width: 1.5)),
                   ),
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) return 'Account number is required';
@@ -227,13 +227,13 @@ class _BankAccountSheetState extends ConsumerState<BankAccountSheet> {
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _saveBankAccount,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC84C00),
-                      foregroundColor: Colors.white,
+                      backgroundColor: VelixPalette.copper,
+                      foregroundColor: VelixPalette.paper,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       elevation: 0,
                     ),
                     child: _isSaving
-                        ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                        ? const CircularProgressIndicator(color: VelixPalette.paper, strokeWidth: 2)
                         : const Text('Save Bank Account', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   ),
                 ),

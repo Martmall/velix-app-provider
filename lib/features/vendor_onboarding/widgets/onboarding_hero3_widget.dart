@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class OnboardingHero3Widget extends StatelessWidget {
   const OnboardingHero3Widget({super.key});
 
@@ -16,7 +17,7 @@ class OnboardingHero3Widget extends StatelessWidget {
             width: 260,
             height: 260,
             decoration: const BoxDecoration(
-              color: Color(0xFFFDF0E9),
+              color: VelixPalette.copperSoft,
               shape: BoxShape.circle,
             ),
           ),
@@ -27,7 +28,7 @@ class OnboardingHero3Widget extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: const Color(0xFFC84C00).withValues(alpha: 0.1),
+                color: VelixPalette.copper.withValues(alpha: 0.1),
                 width: 2,
               ),
             ),
@@ -47,11 +48,11 @@ class OnboardingHero3Widget extends StatelessWidget {
         height: 250,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFFC84C00),
+          color: VelixPalette.copper,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFC84C00).withValues(alpha: 0.3),
+              color: VelixPalette.copper.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -60,7 +61,7 @@ class OnboardingHero3Widget extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(22),
           child: Container(
-            color: const Color(0xFFF8F9FA),
+            color: VelixPalette.stone,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Column(
               children: [
@@ -69,7 +70,7 @@ class OnboardingHero3Widget extends StatelessWidget {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0C1830),
+                      color: VelixPalette.ink,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -77,14 +78,14 @@ class OnboardingHero3Widget extends StatelessWidget {
                 const SizedBox(height: 6),
                 const Row(
                   children: [
-                    Icon(Icons.arrow_back_ios, size: 10, color: Color(0xFF0C1830)),
+                    Icon(Icons.arrow_back_ios, size: 10, color: VelixPalette.ink),
                     SizedBox(width: 2),
                     Text(
                       'Vehicle Access',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0C1830),
+                        color: VelixPalette.ink,
                       ),
                     ),
                   ],
@@ -92,11 +93,11 @@ class OnboardingHero3Widget extends StatelessWidget {
                 const SizedBox(height: 12),
                 const CircleAvatar(
                   radius: 20,
-                  backgroundColor: Color(0xFFFDF0E9),
+                  backgroundColor: VelixPalette.copperSoft,
                   child: Icon(
                     Icons.key,
                     size: 20,
-                    color: Color(0xFF0C1830),
+                    color: VelixPalette.ink,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -105,7 +106,7 @@ class OnboardingHero3Widget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0C1830),
+                    color: VelixPalette.ink,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -114,7 +115,7 @@ class OnboardingHero3Widget extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 6,
-                    color: Color(0xFF6B7280),
+                    color: VelixPalette.muted,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -126,10 +127,10 @@ class OnboardingHero3Widget extends StatelessWidget {
                       width: 18,
                       height: 22,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: VelixPalette.paper,
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(
-                          color: index == 0 ? const Color(0xFFC84C00) : const Color(0xFFE5E7EB),
+                          color: index == 0 ? VelixPalette.copper : VelixPalette.line,
                           width: index == 0 ? 1.5 : 1,
                         ),
                       ),
@@ -139,7 +140,7 @@ class OnboardingHero3Widget extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFC84C00),
+                            color: VelixPalette.copper,
                           ),
                         ),
                       ),
@@ -149,7 +150,7 @@ class OnboardingHero3Widget extends StatelessWidget {
                 const SizedBox(height: 8),
                 const Text(
                   'Resend Code 00:42',
-                  style: TextStyle(fontSize: 7, color: Color(0xFF9CA3AF)),
+                  style: TextStyle(fontSize: 7, color: VelixPalette.lineStrong),
                 ),
               ],
             ),

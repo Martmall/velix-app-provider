@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 /// Unified Biometric & Fingerprint Authentication service for Velix Apps.
 /// Enforces strict user-to-device enrollment: users must register and toggle on
 /// biometrics in Settings before using it for quick login.
@@ -142,9 +143,9 @@ class _BiometricAuthSheetState extends State<_BiometricAuthSheet> with SingleTic
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF6B7280);
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
 
     return Container(
       decoration: BoxDecoration(
@@ -160,7 +161,7 @@ class _BiometricAuthSheetState extends State<_BiometricAuthSheet> with SingleTic
               width: 44,
               height: 4,
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                color: isDark ? VelixPalette.nightLineStrong : VelixPalette.line,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -195,17 +196,17 @@ class _BiometricAuthSheetState extends State<_BiometricAuthSheet> with SingleTic
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _isSuccess
-                          ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                          : const Color(0xFFC84C00).withValues(alpha: 0.12),
+                          ? VelixPalette.go.withValues(alpha: 0.15)
+                          : VelixPalette.copper.withValues(alpha: 0.12),
                       border: Border.all(
                         color: _isSuccess
-                            ? const Color(0xFF10B981)
-                            : const Color(0xFFC84C00),
+                            ? VelixPalette.go
+                            : VelixPalette.copper,
                         width: 2.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: (_isSuccess ? const Color(0xFF10B981) : const Color(0xFFC84C00))
+                          color: (_isSuccess ? VelixPalette.go : VelixPalette.copper)
                               .withValues(alpha: 0.25),
                           blurRadius: 18,
                           spreadRadius: 2,
@@ -215,7 +216,7 @@ class _BiometricAuthSheetState extends State<_BiometricAuthSheet> with SingleTic
                     child: Icon(
                       _isSuccess ? Icons.check_rounded : Icons.fingerprint_rounded,
                       size: 46,
-                      color: _isSuccess ? const Color(0xFF10B981) : const Color(0xFFC84C00),
+                      color: _isSuccess ? VelixPalette.go : VelixPalette.copper,
                     ),
                   ),
                 );
@@ -227,7 +228,7 @@ class _BiometricAuthSheetState extends State<_BiometricAuthSheet> with SingleTic
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: _isSuccess ? const Color(0xFF10B981) : textColor,
+                color: _isSuccess ? VelixPalette.go : textColor,
               ),
             ),
             const SizedBox(height: 24),
@@ -254,7 +255,7 @@ class _BiometricAuthSheetState extends State<_BiometricAuthSheet> with SingleTic
                   child: ElevatedButton(
                     onPressed: () => _simulateBiometricScan(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC84C00),
+                      backgroundColor: VelixPalette.copper,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -263,7 +264,7 @@ class _BiometricAuthSheetState extends State<_BiometricAuthSheet> with SingleTic
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: VelixPalette.paper,
                       ),
                     ),
                   ),

@@ -4,6 +4,7 @@ import '../../constants/app_text_styles.dart';
 import '../../constants/car_images.dart';
 import '../../models/car_model.dart';
 
+import 'package:velix_core/theme/velix_palette.dart';
 class CarCard extends StatelessWidget {
   final CarModel car;
   final VoidCallback onTap;
@@ -80,7 +81,7 @@ class CarCard extends StatelessWidget {
                       backgroundColor: AppColors.backgroundDark.withValues(alpha: 0.7),
                       child: Icon(
                         car.isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: car.isFavorite ? Colors.redAccent : Colors.white,
+                        color: car.isFavorite ? VelixPalette.claim : VelixPalette.paper,
                         size: 18,
                       ),
                     ),
@@ -99,7 +100,7 @@ class CarCard extends StatelessWidget {
                       Text(car.name, style: AppTextStyles.heading3),
                       Row(
                         children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 16),
+                          const Icon(Icons.star, color: VelixPalette.brass, size: 16),
                           const SizedBox(width: 4),
                           Text(
                             car.rating.toStringAsFixed(1),

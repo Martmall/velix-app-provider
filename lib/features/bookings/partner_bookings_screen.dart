@@ -18,11 +18,11 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final scaffoldBg = isDark ? const Color(0xFF0A0C10) : const Color(0xFFF9FAFB);
-    final cardBg = isDark ? const Color(0xFF161922) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF0C1830);
-    final subtextColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-    final borderColor = isDark ? const Color(0xFF262B38) : const Color(0xFFE5E7EB);
+    final scaffoldBg = isDark ? VelixPalette.nightStone : VelixPalette.stone;
+    final cardBg = isDark ? VelixPalette.nightPaper : VelixPalette.paper;
+    final textColor = isDark ? VelixPalette.paper : VelixPalette.ink;
+    final subtextColor = isDark ? VelixPalette.nightMuted : VelixPalette.muted;
+    final borderColor = isDark ? VelixPalette.nightLine : VelixPalette.line;
 
     final bookingsAsync = ref.watch(partnerBookingsProvider);
 
@@ -48,7 +48,7 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
       ),
       body: SafeArea(
         child: bookingsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFFC84C00))),
+          loading: () => const Center(child: CircularProgressIndicator(color: VelixPalette.copper)),
           error: (err, _) => _buildBookingsBody([], isDark, cardBg, textColor, subtextColor, borderColor),
           data: (allBookings) => _buildBookingsBody(allBookings, isDark, cardBg, textColor, subtextColor, borderColor),
         ),
@@ -127,7 +127,7 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
                           width: 72,
                           height: 72,
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF3F4F6),
+                            color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(Icons.calendar_month_outlined, size: 36, color: subtextColor),
@@ -167,10 +167,10 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFC84C00) : cardBg,
+          color: isSelected ? VelixPalette.copper : cardBg,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFFC84C00) : borderColor,
+            color: isSelected ? VelixPalette.copper : borderColor,
           ),
         ),
         child: Text(
@@ -178,7 +178,7 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF374151)),
+            color: isSelected ? VelixPalette.paper : (isDark ? Colors.white70 : VelixPalette.muted),
           ),
         ),
       ),
@@ -232,11 +232,11 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
                   errorBuilder: (_, __, ___) => Container(
                     width: 64,
                     height: 48,
-                    color: isDark ? const Color(0xFF2A1B14) : const Color(0xFFFDF0E9),
+                    color: isDark ? VelixPalette.nightCopperSoft : VelixPalette.copperSoft,
                     child: Center(
                       child: Text(
                         item.userName.isNotEmpty ? item.userName[0].toUpperCase() : 'U',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                       ),
                     ),
                   ),
@@ -259,13 +259,13 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFECFDF5),
+                        color: VelixPalette.goSoft,
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: const Color(0xFFA7F3D0)),
+                        border: Border.all(color: VelixPalette.goSoft),
                       ),
                       child: Text(
                         'Status: ${item.status.name.toUpperCase()}',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF10B981)),
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: VelixPalette.go),
                       ),
                     ),
                   ],
@@ -276,7 +276,7 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
                 children: [
                   Text(
                     '₦${item.totalPrice.toStringAsFixed(0)}',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFFC84C00)),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: VelixPalette.copper),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -292,7 +292,7 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1F2430) : const Color(0xFFF9FAFB),
+              color: isDark ? VelixPalette.nightStone3 : VelixPalette.stone,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -316,10 +316,10 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _respond(item, accept: true),
-                    icon: const Icon(Icons.check, size: 16, color: Colors.white),
-                    label: const Text('Accept', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    icon: const Icon(Icons.check, size: 16, color: VelixPalette.paper),
+                    label: const Text('Accept', style: TextStyle(fontWeight: FontWeight.bold, color: VelixPalette.paper)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF10B981),
+                      backgroundColor: VelixPalette.go,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -330,10 +330,10 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _respond(item, accept: false),
-                    icon: const Icon(Icons.close, size: 16, color: Color(0xFFEF4444)),
-                    label: const Text('Decline', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444))),
+                    icon: const Icon(Icons.close, size: 16, color: VelixPalette.claim),
+                    label: const Text('Decline', style: TextStyle(fontWeight: FontWeight.bold, color: VelixPalette.claim)),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFEF4444)),
+                      side: const BorderSide(color: VelixPalette.claim),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
@@ -346,10 +346,10 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () => context.go(AppRoutes.verifyPickup2, extra: item),
-                icon: const Icon(Icons.qr_code_scanner, size: 16, color: Colors.white),
-                label: const Text('Verify Pickup', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                icon: const Icon(Icons.qr_code_scanner, size: 16, color: VelixPalette.paper),
+                label: const Text('Verify Pickup', style: TextStyle(fontWeight: FontWeight.bold, color: VelixPalette.paper)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC84C00),
+                  backgroundColor: VelixPalette.copper,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -374,8 +374,8 @@ class _PartnerBookingsScreenState extends ConsumerState<PartnerBookingsScreen> {
           Center(
             child: TextButton.icon(
               onPressed: () => context.go(AppRoutes.partnerTripUpdates),
-              icon: const Icon(Icons.navigation_outlined, size: 14, color: Color(0xFFC84C00)),
-              label: const Text('View Active Trip Updates', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFC84C00))),
+              icon: const Icon(Icons.navigation_outlined, size: 14, color: VelixPalette.copper),
+              label: const Text('View Active Trip Updates', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: VelixPalette.copper)),
             ),
           ),
         ],
