@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     
     <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:label="Velix Partner"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

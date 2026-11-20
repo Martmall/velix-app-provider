@@ -1,7 +1,28 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+/// Stores the session tokens in the platform's secure storage.
+///
+/// If Android can't decrypt what an earlier install left behind (an app reinstalled or restored
+/// from a device backup gets the encrypted file but not the key), reads used to throw. That failed
+/// every API call before it was sent ("An unexpected network error occurred"). Now an unreadable
+/// store is wiped and treated as signed out, so the user can simply sign in again.
 class SecureStorageService {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(resetOnError: true),
+  );
+
+  Future<String?> _read(String key) async {
+    try {
+      return await _storage.read(key: key);
+    } catch (_) {
+      try {
+        await _storage.deleteAll();
+      } catch (_) {
+        // Nothing more to do; the next write starts a fresh store.
+      }
+      return null;
+    }
+  }
 
   static const String _keyToken = 'auth_token';
   static const String _keyRefreshToken = 'refresh_token';
@@ -30,10 +51,10 @@ class SecureStorageService {
     await _storage.write(key: _keyRefreshToken, value: token);
   }
 
-  Future<String?> getToken() async => await _storage.read(key: _keyToken);
-  Future<String?> getRefreshToken() async => await _storage.read(key: _keyRefreshToken);
-  Future<String?> getUserRole() async => await _storage.read(key: _keyUserRole);
-  Future<String?> getUserId() async => await _storage.read(key: _keyUserId);
+  Future<String?> getToken() => _read(_keyToken);
+  Future<String?> getRefreshToken() => _read(_keyRefreshToken);
+  Future<String?> getUserRole() => _read(_keyUserRole);
+  Future<String?> getUserId() => _read(_keyUserId);
 
   Future<void> deleteToken() async {
     await _storage.delete(key: _keyToken);
