@@ -1081,8 +1081,10 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/velix_core"
-      relative: true
-    source: path
+      ref: develop
+      resolved-ref: d6614e5e1522a89238a4e838ebcada420ec08ea8
+      url: "https://github.com/Martmall/velix-app-user.git"
+    source: git
     version: "1.0.0"
   vm_service:
     dependency: transitive

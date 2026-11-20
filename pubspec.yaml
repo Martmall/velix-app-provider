@@ -9,8 +9,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Shared with the customer app: the single copy lives in velix-app-user/packages/velix_core.
+  # pubspec.lock pins the exact commit; `flutter pub upgrade velix_core` picks up the latest
+  # develop. For local work on both at once, see README ("Working on velix_core").
   velix_core:
-    path: packages/velix_core
+    git:
+      url: https://github.com/Martmall/velix-app-user.git
+      path: packages/velix_core
+      ref: develop
   flutter_riverpod: ^2.5.1
   go_router: ^14.2.0
   dio: ^5.4.3+1
