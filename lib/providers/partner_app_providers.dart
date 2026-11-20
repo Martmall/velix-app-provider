@@ -45,9 +45,12 @@ class PartnerAuthNotifier extends StateNotifier<PartnerAuthState> {
   final IPaymentRepository _payments;
   StreamSubscription<void>? _expiry;
 
+  /// Completes once the saved session (if any) has been restored at launch.
+  late final Future<void> ready;
+
   PartnerAuthNotifier(this._repository, this._payments) : super(PartnerAuthState()) {
     _expiry = ApiClient().onSessionExpired.listen((_) => state = PartnerAuthState());
-    _init();
+    ready = _init();
   }
 
   @override
