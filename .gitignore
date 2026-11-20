@@ -46,3 +46,4 @@ app.*.map.json
 
 # velix_core test/analyze output
 /packages/velix_core/build/
+pubspec_overrides.yaml
