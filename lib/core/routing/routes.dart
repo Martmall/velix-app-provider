@@ -1,4 +1,5 @@
 class AppRoutes {
+  static const String launch = '/launch';
   static const String vendorOnboarding1 = '/';
   static const String vendorOnboarding2 = '/onboarding-2';
   static const String vendorOnboarding3 = '/onboarding-3';

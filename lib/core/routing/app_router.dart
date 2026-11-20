@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import '../../features/launch/launch_screen.dart';
 import '../../features/vendor_onboarding/vendor_onboarding1_screen.dart';
 import '../../features/vendor_onboarding/vendor_onboarding2_screen.dart';
 import '../../features/vendor_onboarding/vendor_onboarding3_screen.dart';
@@ -24,9 +25,10 @@ import '../../features/dev_preview_screen.dart';
 import 'routes.dart';
 
 final GoRouter partnerAppRouter = GoRouter(
-  initialLocation: AppRoutes.vendorOnboarding1,
+  initialLocation: AppRoutes.launch,
   routes: [
     GoRoute(path: AppRoutes.devPreview, builder: (context, state) => const DevPreviewScreen()),
+    GoRoute(path: AppRoutes.launch, builder: (context, state) => const LaunchScreen()),
     GoRoute(path: AppRoutes.vendorOnboarding1, builder: (context, state) => const VendorOnboarding1Screen()),
     GoRoute(path: AppRoutes.vendorOnboarding2, builder: (context, state) => const VendorOnboarding2Screen()),
     GoRoute(path: AppRoutes.vendorOnboarding3, builder: (context, state) => const VendorOnboarding3Screen()),
